@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block main %}
+<div class="ui raised very padded text container segment">
+    <form method="post" class="ui form">
+
+        <h3 class="ui block header">
+            {{bot.name}}
+        </h3>
+
+        <h3 class="ui block header">
+            {{bot.valute_par}}
+        </h3>
+        <div class="field">
+            <label>Сумма инвестиций</label>
+            <input type="text" name="sum_invest" value="{{bot.sum_invest}}">
+        </div>
+        <div class="field">
+            <label>Уровень покупки</label>
+            <input type="text" name="bye_lvl" value="{{bot.bye_lvl}}">
+        </div>
+        <div class="field">
+            <label>Уровень продажи</label>
+            <input type="text" name="sell_lvl" value="{{bot.sell_lvl}}">
+        </div>
+
+        <div class="two fields">
+            <div class="field">
+                <label>Тригер цена</label>
+                <input type="text" name="triger_lvl" value="{{bot.triger_lvl}}">
+            </div>
+            <div class="field">
+                {% if bot.triger %}
+                <input type="checkbox" checked name="triger" class="hidden">
+                {% else %}
+                    <input type="checkbox" name="triger" class="hidden">
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="two fields">
+            <div class="field">
+                <select name="valuecheck" class="ui fluid dropdown">
+                    <option disabled>{{bot.valuecheck}}</option>
+                    <option value="min">Минуты</option>
+                    <option value="hour">Часы</option>
+                    <option value="dey">Дни</option>
+                    <option value="month">Месяцы</option>
+                </select>
+            </div>
+            <div class="field">
+                <input type="number" name="check_time" value="{{bot.check_time}}" >
+            </div>
+        </div>
+
+
+        <button class="ui button" type="submit">Submit</button>
+    </form>
+</div>
+{% endblock %}

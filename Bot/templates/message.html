@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block main %}
+
+
+<div class="ui vertical masthead center aligned segment">
+
+    <table class="ui celled table">
+        <thead>
+        <tr>
+            <th>Тип</th>
+            <th>Валютная пара</th>
+            <th>Bot Id</th>
+            <th>Количество</th>
+            <th>По цене</th>
+            <th>Профит</th>
+            <th>Дата</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for h in hist %}
+        <tr>
+            <td data-label="Name">{{h.type}}</td>
+            <td data-label="Age">{{h.valute_par}}</td>
+            <td data-label="Name">{{h.bot_id}}</td>
+            <td data-label="Job">{{h.count}}</td>
+            <td data-label="Job">{{h.lvl}}</td>
+            <td data-label="Job">{{h.profit}}</td>
+            <td data-label="Job">{{h.date}}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+
+</div>
+
+
+{% endblock %}

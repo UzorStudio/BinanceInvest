@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block main %}
+<div class="ui raised very padded text container segment">
+    <div class="ui cards">
+        {% for b in bo %}
+
+
+        <div class="card">
+            <div class="content">
+
+                <div class="header">
+                    {{b.bot.name}}
+                </div>
+                <div class="meta">
+                    Сумма инвестиций: {{b.bot.sum_invest}}<br>
+                    Объем закупки: {{b.bot.count_hev}}
+                </div>
+                <div class="description">
+                    <p>Уровень покупки: {{b.bot.bye_lvl}}</p>
+                    <p>Уровень продажи: {{b.bot.sell_lvl}}</p>
+                    <p>Тригер цена: {{b.bot.triger_lvl}}</p>
+                    <p>Валютная пара: <br>{{b.bot.valute_par}} {{b.price}}</p>
+                    <p>Частота проверки: {{b.bot.check_time}} {{b.bot.valuecheck}}</p>
+                    <p>Следущая проверка:{{b.bot.next_check}}</p>
+                </div>
+            </div>
+            <div class="extra content">
+                <div class="ui two buttons">
+                    <a href="/botsetings/{{b.bot._id}}" class="ui basic green button">Изменить</a>
+                    <a href="/delbot/{{b.bot._id}}" class="ui basic red button">Удалить</a>
+                </div>
+            </div>
+        </div>
+
+
+        {% endfor %}
+
+
+
+
+
+        <div class="card">
+            <div class="content">
+
+                <div class="header">
+                    Добавить бота
+                </div>
+<div class="ui raised very padded segment">
+                <a href="/create"><img class="disabled medium ui image"
+                                       src="{{url_for('static', filename='img/plus.png', v=1)}}"></a>
+</div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+</div>
+
+
+{% endblock %}

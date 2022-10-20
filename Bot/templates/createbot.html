@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block main %}
+<div class="ui raised very padded text container segment">
+
+    <form class="ui form" method="post">
+
+        <div class="field">
+            <select name="valute_par" class="ui fluid dropdown">
+                {% for c in coin %}
+                <option value="{{c.symbol}}">{{c.symbol}} {{c.price}}</option>
+                {% endfor %}
+
+            </select>
+        </div>
+        <div class="ui cards">
+            {% for b in balance %}
+            <div class="card">
+                <div class="content">
+                    <div class="meta">{{b.asset}}: {{b.free}}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="field">
+            <label>Название</label>
+            <input type="text" name="name">
+        </div>
+        <div class="field">
+            <label>Сумма инвестиций</label>
+            <input type="text" name="sum_invest">
+        </div>
+        <div class="field">
+            <label>Уровень покупки</label>
+            <input type="text" name="bye_lvl">
+        </div>
+        <div class="field">
+            <label>Уровень продажи</label>
+            <input type="text" name="sell_lvl">
+        </div>
+
+        <div class="two fields">
+            <div class="field">
+                <label>Тригер цена</label>
+                <input type="text" name="triger_lvl">
+            </div>
+            <div class="field">
+                <input type="checkbox" name="triger" class="hidden">
+            </div>
+        </div>
+
+        <div class="two fields">
+            <div class="field">
+                <select name="valuecheck" class="ui fluid dropdown">
+                    <option value="min">Минуты</option>
+                    <option value="hour">Часы</option>
+                    <option value="dey">Дни</option>
+                    <option value="month">Месяцы</option>
+                </select>
+            </div>
+            <div class="field">
+                <input type="number" name="check_time" value="10">
+            </div>
+        </div>
+
+
+        <button class="ui button" type="submit">Submit</button>
+    </form>
+</div>
+{% endblock %}

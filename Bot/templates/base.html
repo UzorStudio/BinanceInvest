@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='semantic/semantic.min.css', v=1)}}">
+    <script
+            src="https://code.jquery.com/jquery-3.1.1.min.js"
+            integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+            crossorigin="anonymous"></script>
+    <script src="static/semantic/semantic.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0-alpha.1/axios.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        @media screen and (max-width: 768px) {
+.footer{position:relative!important;}
+}
+
+    </style>
+</head>
+<body>
+
+<div class="ui vertical masthead center aligned segment">
+    <div class="ui inverted attached stackable menu">
+        <div class="ui container">
+
+
+            <a class="item" href="/">
+                <h2>Binance Invest</h2>
+            </a>
+
+            <a class="item right" href="/">
+                <i class="align justify icon"></i> Все боты
+            </a>
+            <a class="item right" href="/settings">
+                <i class="align justify icon"></i> Настройки
+            </a>
+            <a class="item right" href="/message">
+                <i class="align justify icon"></i> Уведомления
+            </a>
+
+
+        </div>
+    </div>
+
+
+</div>
+{% block main %}
+{% endblock %}
+
+
+</body>
+</html>

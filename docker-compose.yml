@@ -1,0 +1,23 @@
+version: "3.5"
+
+services:
+  bot:
+    image: python3.10
+    container_name: "bot_container"
+    build:
+      dockerfile: Bot/Dockerfile
+      context: .
+    ports:
+      - "1234:5000"
+  mongodb:
+    container_name: mongodb
+    image: 'mongo'
+    environment:
+      - MONGO_INITDB_DATABASE=BinanceInvest
+      - MONGO_INITDB_ROOT_USERNAME=Roooasr
+      - MONGO_INITDB_ROOT_PASSWORD=sedsaigUG12IHKJhihsifhaosf
+    volumes:
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ./mongo-volume:/data/db
+    ports:
+      - '27017-27019:27017-27019'
