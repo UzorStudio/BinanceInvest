@@ -2,17 +2,19 @@ import threading
 from time import sleep
 
 from binance.client import Client
+from binance.enums import SIDE_BUY, TIME_IN_FORCE_GTC, ORDER_TYPE_LIMIT
 from flask import Flask, render_template, request, redirect, session
 import base
 from datetime import datetime
 from threading import Thread
 
-apis = open("conf.txt","r").readlines()
+apis = open("Bot/conf.txt","r").readlines()
 print(apis)
-db = base.Base("mongodb://Roooasr:sedsaigUG12IHKJhihsifhaosf@mongodb:27017/")
+#db = base.Base("mongodb://Roooasr:sedsaigUG12IHKJhihsifhaosf@mongodb:27017/")
+db = base.Base("localhost")
 
 client = Client(apis[0].replace("\n",""),
-                apis[1])
+                apis[1].replace("\n",""))
 
 app = Flask(__name__)
 app.secret_key = "mimoza1122"
@@ -43,6 +45,20 @@ def index():
 
         return render_template("index.html", bo=b)
 
+
+@app.route("/archive", methods=["POST", "GET"])
+def archive():
+    if request.method == "POST":
+
+        email = request.form["email"]
+
+    else:
+        bots = db.getAllBots()
+        b = []
+        for bot in bots:
+            b.append({"bot":bot,"price":float(client.get_avg_price(symbol=bot['valute_par'])['price'])})
+
+        return render_template("archive.html", bo=b)
 
 @app.route("/settings", methods=["POST", "GET"])
 def settings():
@@ -105,6 +121,14 @@ def delbot(id):
         return redirect('/')
 
 
+@app.route("/returnbot/<string:id>", methods=["POST", "GET"])
+def returnbot(id):
+    if request.method == "POST":
+        pass
+    else:
+        db.returnBot(id)
+        return redirect('/archive')
+
 @app.route("/botsetings/<string:id>", methods=["POST", "GET"])
 def botsetings(id):
     if request.method == "POST":
@@ -157,7 +181,7 @@ def worker():
 
         for bot in bots:
             print(datetime.now())
-            if bot['next_check'] <= datetime.now():
+            if bot['next_check'] <= datetime.now() and bot['not_archive']:
                 db.botNextCheck(bot['_id'])
 
                 price = float(client.get_avg_price(symbol=bot['valute_par'])['price'])
@@ -165,13 +189,38 @@ def worker():
 
                 if price <= bot['bye_lvl']: # BYE
                     count = bot['sum_invest'] * price
+
+                    #order = client.order_market_buy(
+                    #    symbol=bot['valute_par'],
+                    #    quantity=bot['sum_invest'])
+
                     db.postOperationBye(bye_lvl=price,valute_par=bot['valute_par'],count=count,bot_id=bot['_id'])
                 elif price >= bot['sell_lvl'] and bot['count_hev'] > 0: # SELL
                     count = bot['count_hev']
+
+                    #order = client.order_market_sell(
+                    #    symbol=bot['valute_par'],
+                    #    quantity=count)
+
                     db.postOperationSell(sell_lvl=price,valute_par=bot['valute_par'],count=count,bot_id=bot['_id'])
 
+
+
                 if price >= bot['triger_lvl'] and bot["order"] == False:
-                    db.postOperationOrgerBy(bye_lvl=bot['bye_lvl'],valute_par=bot['valute_par'],count=bot['count_hev'],bot_id=bot['_id'])
+
+                    #order = client.create_order(
+                    #    symbol=bot['valute_par'],
+                    #    side=SIDE_BUY,
+                    #    type=ORDER_TYPE_LIMIT,
+                    #    timeInForce=TIME_IN_FORCE_GTC,
+                    #    quantity=bot['sum_invest'],
+                    #    price= bot['bye_lvl'])
+
+                    db.postOperationOrgerBy(bye_lvl=bot['bye_lvl'],valute_par=bot['valute_par'],count=bot['sum_invest'],bot_id=bot['_id'],orger_id="order['orderId']")
+
+                for ord in client.get_all_orders(symbol=bot['valute_par'], limit=10):
+                    if ord['status'] != 'NEW':
+                        db.setOrder(bot["_id"],False)
         sleep(30)
 
 

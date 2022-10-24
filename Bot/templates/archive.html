@@ -6,6 +6,8 @@
         {% for b in bo %}
         {% if b.bot.not_archive %}
 
+        {% else %}
+
 
         <div class="card">
             <div class="content">
@@ -29,7 +31,7 @@
             <div class="extra content">
                 <div class="ui two buttons">
                     <a href="/botsetings/{{b.bot._id}}" class="ui basic green button">Изменить</a>
-                    <a href="/delbot/{{b.bot._id}}" class="ui basic red button">Архивировать</a>
+                    <a href="/returnbot/{{b.bot._id}}" class="ui basic yellow button">Востановить</a>
                 </div>
             </div>
         </div>

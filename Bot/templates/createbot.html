@@ -6,12 +6,21 @@
     <form class="ui form" method="post">
 
         <div class="field">
-            <select name="valute_par" class="ui fluid dropdown">
+            <select name="valute_par" class="ui fluid dropdown livesearch">
                 {% for c in coin %}
                 <option value="{{c.symbol}}">{{c.symbol}} {{c.price}}</option>
                 {% endfor %}
 
             </select>
+
+            <div class="field">
+
+
+            <script type="text/javascript">
+	      $(".js-select2").chosen();
+
+            </script>
+
         </div>
         <div class="ui cards">
             {% for b in balance %}

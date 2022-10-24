@@ -9,6 +9,7 @@ services:
       context: .
     ports:
       - "1234:5000"
+
   mongodb:
     container_name: mongodb
     image: 'mongo'
