@@ -5,7 +5,7 @@ try:
     with open('exchange_info_test.json') as json_file:
         inf_test = json.load(json_file)
 except:
-    print("Bot/exchange_info_test open err")
+    print("exchange_info_test open err")
 
 try:
     with open('exchange_info.json') as json_file:

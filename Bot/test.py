@@ -10,14 +10,18 @@ import base
 #           api_secret='c8ajF3CkeAfLTxf14EkZzD6LnzkF7t5UduoXCG0sCWGHpwMXlZxvW4LIZJ7Bc5Ri',
 #           test_net_on=False)
 
-client = Client("OW9lwAN9t72TYQylaKmwZqS5H3Leb4BwyzLfFWttgAtusfHLmdwXjYpZYwa4NiPu",
-                "HqkcS2ETC34T7h5SF0g9R5dyzJcMrm8fMzXotc2oQ2l9uonUSDntVPlrN34wf2o5",
-                testnet=True)
+s = 0.00000302
+print("".join(str(s)))
 
 
-for b in client.get_account()['balances']:
-    if float(b['free']) > 0 :
-        print(b)
+#client = Client("OW9lwAN9t72TYQylaKmwZqS5H3Leb4BwyzLfFWttgAtusfHLmdwXjYpZYwa4NiPu",
+#                "HqkcS2ETC34T7h5SF0g9R5dyzJcMrm8fMzXotc2oQ2l9uonUSDntVPlrN34wf2o5",
+#                testnet=True)
+#
+#
+#for b in client.get_account()['balances']:
+#    if float(b['free']) > 0 :
+#        print(b)
 
 
 

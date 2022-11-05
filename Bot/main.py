@@ -61,17 +61,17 @@ def index():
             razn_sell = 0
             price = float(client.get_avg_price(symbol=bot['valute_par'])['price'])
             if len(str(bot['bye_lvl']).split('e')) > 1:
-                bot['bye_lvl'] = format(float(bot['bye_lvl']), ".8f")
+                bot['bye_lvl'] = format(float(bot['bye_lvl']), ".9f")
             if len(str(bot['sum_invest']).split('e')) > 1:
-                bot['sum_invest'] = format(float(bot['sum_invest']), ".8f")
+                bot['sum_invest'] = format(float(bot['sum_invest']), ".9f")
             if len(str(bot['sell_lvl']).split('e')) > 1:
-                bot['sell_lvl'] = format(float(bot['bye_lvl']), ".8f")
+                bot['sell_lvl'] = format(float(bot['bye_lvl']), ".9f")
             if len(str(bot['triger_lvl']).split('e')) > 1:
-                bot['triger_lvl'] = format(float(bot['sell_lvl']), ".8f")
+                bot['triger_lvl'] = format(float(bot['sell_lvl']), ".9f")
             if len(str(bot['count_hev']).split('e')) > 1:
-                bot['count_hev'] = format(float(bot['count_hev']), ".8f")
+                bot['count_hev'] = format(float(bot['count_hev']), ".9f")
             if len(str(price).split('e')) > 1:
-                price = format(float(price), ".8f")
+                price = format(float(price), ".9f")
             if bot['bye_lvl'] < price:
                 razn = 100*(1-float(bot['bye_lvl'])/float(price))
             if bot['bye_lvl'] > price:
@@ -100,17 +100,17 @@ def index():
             razn = 0
             price = float(client.get_avg_price(symbol=bot['valute_par'])['price'])
             if len(str(bot['bye_lvl']).split('e')) > 1:
-                bot['bye_lvl'] = format(float(bot['bye_lvl']), ".8f")
+                bot['bye_lvl'] = format(float(bot['bye_lvl']), ".9f")
             if len(str(bot['sum_invest']).split('e')) > 1:
-                bot['sum_invest'] = format(float(bot['sum_invest']), ".8f")
+                bot['sum_invest'] = format(float(bot['sum_invest']), ".9f")
             if len(str(bot['sell_lvl']).split('e')) > 1:
-                bot['sell_lvl'] = format(float(bot['bye_lvl']), ".8f")
+                bot['sell_lvl'] = format(float(bot['bye_lvl']), ".9f")
             if len(str(bot['triger_lvl']).split('e')) > 1:
-                bot['triger_lvl'] = format(float(bot['sell_lvl']), ".8f")
+                bot['triger_lvl'] = format(float(bot['sell_lvl']), ".9f")
             if len(str(bot['count_hev']).split('e')) > 1:
-                bot['count_hev'] = format(float(bot['count_hev']), ".8f")
+                bot['count_hev'] = format(float(bot['count_hev']), ".9f")
             if len(str(price).split('e')) > 1:
-                price = format(float(price), ".8f")
+                price = format(float(price), ".9f")
             if bot['bye_lvl'] < price:
                 razn = 100 * (1 - float(bot['bye_lvl']) / float(price))
             if bot['bye_lvl'] > price:
@@ -254,15 +254,15 @@ def botsetings(id):
 
 
         if len(str(bo['bye_lvl']).split('e')) > 1:
-            bo['bye_lvl'] = format(float(bo['bye_lvl']), ".8f")
+            bo['bye_lvl'] = format(float(bo['bye_lvl']), ".9f")
         if len(str(bo['sum_invest']).split('e')) > 1:
-            bo['sum_invest'] = format(float(bo['sum_invest']), ".8f")
+            bo['sum_invest'] = format(float(bo['sum_invest']), ".9f")
         if len(str(bo['sell_lvl']).split('e')) > 1:
-            bo['sell_lvl'] = format(float(bo['bye_lvl']), ".8f")
+            bo['sell_lvl'] = format(float(bo['bye_lvl']), ".9f")
         if len(str(bo['triger_lvl']).split('e')) > 1:
-            bo['triger_lvl'] = format(float(bo['sell_lvl']), ".8f")
+            bo['triger_lvl'] = format(float(bo['sell_lvl']), ".9f")
         if len(str(bo['count_hev']).split('e')) > 1:
-            bo['count_hev'] = format(float(bo['count_hev']), ".8f")
+            bo['count_hev'] = format(float(bo['count_hev']), ".9f")
 
         return render_template("botsetings.html", bot=bo)
 
@@ -438,11 +438,14 @@ def worker():
                     db.postOperationOrgerBy(bye_lvl=bot['bye_lvl'],valute_par=bot['valute_par'],count=bot['sum_invest'],bot_id=bot['_id'],orger_id=order['order']['orderId'],orger=order)
                 d = db.getOrderId(bot["_id"])
                 if d !=0:
-                    if bin_func.check_order(symb=bot['valute_par'],client=client,ordId=d["order"]["orderId"])['status'] == "FILLED":
-                        db.postOperationBye(bye_lvl=price, valute_par=bot['valute_par'], count=bot['sum_invest'],
-                                            bot_id=bot['_id'],
-                                            order=d, spent=d["bye"]["count"])
-                        db.setOrder(bot["_id"],False,0)
+                    try:
+                        if bin_func.check_order(symb=bot['valute_par'],client=client,ordId=d["order"]["orderId"])['status'] == "FILLED":
+                            db.postOperationBye(bye_lvl=price, valute_par=bot['valute_par'], count=bot['sum_invest'],
+                                                bot_id=bot['_id'],
+                                                order=d, spent=d["bye"]["count"])
+                            db.setOrder(bot["_id"],False,0)
+                    except TypeError:
+                        pass
         sleep(30)
 
 
