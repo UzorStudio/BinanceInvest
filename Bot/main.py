@@ -11,9 +11,9 @@ from datetime import datetime
 from threading import Thread
 import bin_func
 
-db = base.Base("mongodb://Roooasr:sedsaigUG12IHKJhihsifhaosf@mongodb:27017/")
-#db = base.Base("localhost")
-API_PATH = "conf.txt"
+#db = base.Base("mongodb://Roooasr:sedsaigUG12IHKJhihsifhaosf@mongodb:27017/")
+db = base.Base("localhost")
+API_PATH = "Bot/conf.txt"
 
 apis = open(API_PATH,"r").readlines()
 print(apis)
@@ -61,15 +61,15 @@ def index():
             razn_sell = 0
             price = float(client.get_avg_price(symbol=bot['valute_par'])['price'])
             if len(str(bot['bye_lvl']).split('e')) > 1:
-                bot['bye_lvl'] = format(float(bot['bye_lvl']), ".9f")
+                bot['bye_lvl'] = format(float(bot['bye_lvl']), ".8f")
             if len(str(bot['sum_invest']).split('e')) > 1:
-                bot['sum_invest'] = format(float(bot['sum_invest']), ".9f")
+                bot['sum_invest'] = format(float(bot['sum_invest']), ".8f")
             if len(str(bot['sell_lvl']).split('e')) > 1:
-                bot['sell_lvl'] = format(float(bot['bye_lvl']), ".9f")
+                bot['sell_lvl'] = format(float(bot['sell_lvl']), ".8f")
             if len(str(bot['triger_lvl']).split('e')) > 1:
-                bot['triger_lvl'] = format(float(bot['sell_lvl']), ".9f")
+                bot['triger_lvl'] = format(float(bot['triger_lvl']), ".8f")
             if len(str(bot['count_hev']).split('e')) > 1:
-                bot['count_hev'] = format(float(bot['count_hev']), ".9f")
+                bot['count_hev'] = format(float(bot['count_hev']), ".8f")
             if len(str(price).split('e')) > 1:
                 price = format(float(price), ".9f")
             if bot['bye_lvl'] < price:
@@ -100,17 +100,17 @@ def index():
             razn = 0
             price = float(client.get_avg_price(symbol=bot['valute_par'])['price'])
             if len(str(bot['bye_lvl']).split('e')) > 1:
-                bot['bye_lvl'] = format(float(bot['bye_lvl']), ".9f")
+                bot['bye_lvl'] = format(float(bot['bye_lvl']), ".8f")
             if len(str(bot['sum_invest']).split('e')) > 1:
-                bot['sum_invest'] = format(float(bot['sum_invest']), ".9f")
+                bot['sum_invest'] = format(float(bot['sum_invest']), ".8f")
             if len(str(bot['sell_lvl']).split('e')) > 1:
-                bot['sell_lvl'] = format(float(bot['bye_lvl']), ".9f")
+                bot['sell_lvl'] = format(float(bot['sell_lvl']), ".8f")
             if len(str(bot['triger_lvl']).split('e')) > 1:
-                bot['triger_lvl'] = format(float(bot['sell_lvl']), ".9f")
+                bot['triger_lvl'] = format(float(bot['triger_lvl']), ".8f")
             if len(str(bot['count_hev']).split('e')) > 1:
-                bot['count_hev'] = format(float(bot['count_hev']), ".9f")
+                bot['count_hev'] = format(float(bot['count_hev']), ".8f")
             if len(str(price).split('e')) > 1:
-                price = format(float(price), ".9f")
+                price = format(float(price), ".8f")
             if bot['bye_lvl'] < price:
                 razn = 100 * (1 - float(bot['bye_lvl']) / float(price))
             if bot['bye_lvl'] > price:
@@ -186,7 +186,7 @@ def create():
                         valuecheck=valuecheck,
                         check_time=check_time,
                         triger=trigger)
-        return redirect(f'/botsetings/{str(ids)}')
+        return redirect(f'/message/{str(ids)}')
     else:
 
         info = client.get_account()['balances']

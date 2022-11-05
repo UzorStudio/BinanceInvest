@@ -185,7 +185,7 @@ class Base:
 
         spent = bot['spent']
         price_sell = count
-        profit = 100 - ((spent / price_sell) * 100)
+        profit = 100 - ((float(spent) / float(price_sell)) * 100)
 
         post = {
             "lvl": sell_lvl,
