@@ -2,14 +2,14 @@
 
 {% block main %}
 <div class="ui raised very padded text container segment">
-    <form class="ui form">
+    <form method="post" class="ui form">
   <div class="field">
     <label>Api key</label>
-    <input type="text" name="api_key" placeholder="cIejKC...0eIfte67cTjuZTRzU2dKCfqZg8071RJq8BIQsuvkhIZiFRChLDXvBuq">
+    <input type="text" name="api_key" placeholder="{{api[0]}}">
   </div>
   <div class="field">
     <label>Api secret</label>
-    <input type="text" name="api_secret" placeholder="4z0NTs2....BXok6CA8iNE9k005WfPULbAqQN2CGtSSPvPFHWIYXpEN0y2AFexu3">
+    <input type="text" name="api_secret" placeholder="{{api[1]}}">
   </div>
   <button class="ui button" type="submit">Submit</button>
 </form>

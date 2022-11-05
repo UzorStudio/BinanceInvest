@@ -2,7 +2,58 @@
 
 {% block main %}
 <div class="ui raised very padded text container segment">
+    <div class="ui raised very padded segment">
+        <div class="fields">
+            <form method="post">
+                <div class="field">
+
+                    <label>Доступные Валютные пары</label>
+                    <select name="symbol" class="ui fluid dropdown livesearch">
+                        {% for p in par %}
+                        <option value="{{p.symbol}}">{{p.symbol}} кол-во: {{p.count_bot}}</option>
+                        {% endfor %}
+
+                    </select>
+                    <p><input type="submit" class="mini ui button" name="all" value="Поиск по дате"></p>
+
+
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+
+    <div class="ui four column doubling stackable grid container">
+        {% for b in balance %}
+        <div class="column">
+            <div class="content">
+                <div class="meta">{{b.asset}}: {{b.free}}</div>
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+
     <div class="ui cards">
+
+
+        <div class="card">
+            <div class="content">
+
+                <div class="header">
+                    Добавить бота
+                </div>
+                <div class="ui raised very padded segment">
+                    <a href="/create"><img class="disabled medium ui image"
+                                           src="{{url_for('static', filename='img/plus.png', v=1)}}"></a>
+                </div>
+
+            </div>
+
+        </div>
+
+
         {% for b in bo %}
         {% if b.bot.not_archive %}
 
@@ -11,17 +62,24 @@
             <div class="content">
 
                 <div class="header">
-                    {{b.bot.name}} {{b.bot._id}}
+                    {{b.bot.name}}
+
+                </div>
+                <div class="meta">
+                    <a href="/message/{{b.bot._id}}">{{b.bot._id}}</a>
+
                 </div>
                 <div class="meta">
                     Сумма инвестиций: {{b.bot.sum_invest}}<br>
-                    Объем закупки: {{b.bot.count_hev}}
+                    Объем закупки: {{b.bot.count_hev}}<br>
+                    До уровня Покупки: {{b.razn}}%<br>
+                    До уровня Продажи: {{b.razn_sell}}%
                 </div>
                 <div class="description">
                     <p>Уровень покупки: {{b.bot.bye_lvl}}</p>
                     <p>Уровень продажи: {{b.bot.sell_lvl}}</p>
                     <p>Тригер цена: {{b.bot.triger_lvl}}</p>
-                    <p>Валютная пара: <br>{{b.bot.valute_par}} {{b.price}}</p>
+                    <p>Валютная пара: <br>{{b.bot.valute_par}} <strong>{{b.price}}</strong></p>
                     <p>Частота проверки: {{b.bot.check_time}} {{b.bot.valuecheck}}</p>
                     <p>Следущая проверка:{{b.bot.next_check}}</p>
                 </div>
@@ -36,25 +94,6 @@
         {% endif %}
 
         {% endfor %}
-
-
-
-
-
-        <div class="card">
-            <div class="content">
-
-                <div class="header">
-                    Добавить бота
-                </div>
-<div class="ui raised very padded segment">
-                <a href="/create"><img class="disabled medium ui image"
-                                       src="{{url_for('static', filename='img/plus.png', v=1)}}"></a>
-</div>
-
-            </div>
-
-        </div>
 
 
     </div>

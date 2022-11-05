@@ -8,7 +8,7 @@
         <div class="field">
             <select name="valute_par" class="ui fluid dropdown livesearch">
                 {% for c in coin %}
-                <option value="{{c.symbol}}">{{c.symbol}} {{c.price}}</option>
+                <option value="{{c.symbol}}">{{c.par.symbol}} MIN: {{c.minimum}} Price: {{c.par.price}}</option>
                 {% endfor %}
 
             </select>

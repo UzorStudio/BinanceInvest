@@ -63,7 +63,9 @@ class Base:
             "count_hev": 0,  # записывать количество
             'last_bye': "",  # Записывать id последней покупки
             'first_bye': "",  # Записывать id первой покупки
-            'not_archive':True,
+            'spent':0,
+            "order_id":0,
+            'not_archive': True,
             'triger': triger
         }
 
@@ -73,13 +75,13 @@ class Base:
         db = self.classter["BinanceInvest"]
         Bots = db["Bots"]
 
-        Bots.update_one({"_id": ObjectId(id)},{"$set":{'not_archive':False}})
+        Bots.update_one({"_id": ObjectId(id)}, {"$set": {'not_archive': False}})
 
     def returnBot(self, id):
         db = self.classter["BinanceInvest"]
         Bots = db["Bots"]
 
-        Bots.update_one({"_id": ObjectId(id)},{"$set":{'not_archive':True}})
+        Bots.update_one({"_id": ObjectId(id)}, {"$set": {'not_archive': True}})
 
     def reloadBot(self, id, sum_invest, bye_lvl, sell_lvl, triger_lvl, valuecheck, check_time, triger):
         db = self.classter["BinanceInvest"]
@@ -106,8 +108,8 @@ class Base:
             'check_time': int(check_time),
             'next_check': next_check,
             'order': Bots.find_one({"_id": ObjectId(id)})['order'],
-            "count_hev": Bots.find_one({"_id": ObjectId(id)})['count_hev'], # записывать количество
-            'last_bye':Bots.find_one({"_id": ObjectId(id)})['last_bye'], # Записывать id последней покупки
+            "count_hev": Bots.find_one({"_id": ObjectId(id)})['count_hev'],  # записывать количество
+            'last_bye': Bots.find_one({"_id": ObjectId(id)})['last_bye'],  # Записывать id последней покупки
             'first_bye': Bots.find_one({"_id": ObjectId(id)})['first_bye'],  # Записывать id первой покупки
             'not_archive': Bots.find_one({"_id": ObjectId(id)})['not_archive'],
             'triger': triger
@@ -127,7 +129,30 @@ class Base:
 
         return Bots.find({})
 
-    def postOperationBye(self, bot_id, bye_lvl, valute_par, count):
+    def getBotsBySymbol(self,symbol):
+        db = self.classter["BinanceInvest"]
+        Bots = db["Bots"]
+
+        return Bots.find({"valute_par":symbol})
+
+    def openSymbol(self):
+        db = self.classter["BinanceInvest"]
+        Bots = db["Bots"]
+        symbol = []
+        symbol1= []
+        for b in Bots.find({}):
+            if b['valute_par'] not in symbol1:
+                symbol.append({"symbol":b['valute_par'],"count_bot":len(list(Bots.find({"valute_par":b['valute_par']})))})
+                symbol1.append(b['valute_par'])
+            else:
+                pass
+        print(len(symbol))
+        return symbol
+
+
+
+
+    def postOperationBye(self, bot_id, bye_lvl, valute_par, count,order,spent):
         db = self.classter["BinanceInvest"]
         Hist = db["Hist"]
         Bots = db["Bots"]
@@ -136,48 +161,50 @@ class Base:
             "lvl": bye_lvl,
             "valute_par": valute_par,
             "count": count,
-            "type":"Покупка",
-            "date":datetime.now(),
-            "profit":0,
-            "bot_id":bot_id
-
+            "type": "Покупка",
+            "date": datetime.now(),
+            "profit": 0,
+            "bot_id": bot_id,
+            "order":order,
+            "spent":spent
         }
 
-
-        Bots.update_one({"_id":bot_id},{"$inc":{"count_hev":+count}})
+        Bots.update_one({"_id": bot_id}, {"$inc": {"count_hev": +count}})
+        Bots.update_one({"_id": bot_id}, {"$inc": {"spent": +spent}})
         ids = Hist.insert_one(post).inserted_id
-        if Bots.find_one({"_id":bot_id})['first_bye'] == "":
+        if Bots.find_one({"_id": bot_id})['first_bye'] == "":
             Bots.update_one({"_id": bot_id}, {"$set": {"first_bye": ids}})
         Bots.update_one({"_id": bot_id}, {"$set": {"last_bye": ids}})
 
-
-    def postOperationSell(self, bot_id, sell_lvl, valute_par, count):
+    def postOperationSell(self, bot_id, sell_lvl, valute_par, count,order):
         db = self.classter["BinanceInvest"]
         Hist = db["Hist"]
         Bots = db["Bots"]
-        bot = Bots.find_one({"_id":bot_id})
+        bot = Bots.find_one({"_id": bot_id})
 
-        first_bye = Hist.find_one({"_id":ObjectId(bot['first_bye'])})
-        price_first_bye  = first_bye['lvl']
-        price_sell = sell_lvl
-        profit = 100-((price_first_bye/price_sell)*100)
+
+        spent = bot['spent']
+        price_sell = count
+        profit = 100 - ((spent / price_sell) * 100)
 
         post = {
             "lvl": sell_lvl,
             "valute_par": valute_par,
             "count": count,
-            "type":"Продажа",
-            "date":datetime.now(),
+            "type": "Продажа",
+            "date": datetime.now(),
             "profit": profit,
-            "bot_id":bot_id
+            "bot_id": bot_id,
+            "order":order
         }
 
         Bots.update_one({"_id": bot_id}, {"$inc": {"count_hev": -count}})
+        Bots.update_one({"_id": bot_id}, {"$set": {"spent": 0}})
         Bots.update_one({"_id": bot_id}, {"$set": {"first_bye": ""}})
-        Bots.update_one({"_id": bot_id}, {"$inc": {"sum_invest":(bot['sum_invest']*(profit/100))}})
+        Bots.update_one({"_id": bot_id}, {"$inc": {"sum_invest": (bot['sum_invest'] * (profit / 100))}})
         Hist.insert_one(post)
 
-    def postOperationOrgerBy(self, bye_lvl, valute_par, count,bot_id,orger_id):
+    def postOperationOrgerBy(self, bye_lvl, valute_par, count, bot_id, orger_id,orger):
         db = self.classter["BinanceInvest"]
         Hist = db["Hist"]
         Bots = db["Bots"]
@@ -186,25 +213,166 @@ class Base:
             "lvl": bye_lvl,
             "valute_par": valute_par,
             "count": count,
-            "type":"Ордер на закупку",
-            "date":datetime.now(),
+            "type": "Ордер на закупку",
+            "date": datetime.now(),
             "profit": 0,
-            "bot_id": bot_id
+            "bot_id": bot_id,
+            "order":orger
 
         }
 
         Hist.insert_one(post)
-        Bots.update_one({"_id": bot_id},{"$set":{"order":orger_id}})
+        Bots.update_one({"_id": bot_id}, {"$set": {"order": orger_id}})
 
-
-    def setOrder(self,bot_id,status):
+    def setOrder(self, bot_id, status,order_id):
         db = self.classter["BinanceInvest"]
         Bots = db["Bots"]
 
+        Bots.update_one({"_id": bot_id}, {"$set": {"order_id": order_id}})
         Bots.update_one({"_id": bot_id}, {"$set": {"order": status}})
+
+
+    def getOrderId(self,bot_id):
+        db = self.classter["BinanceInvest"]
+        Bots = db["Bots"]
+        Hist = db["Hist"]
+
+        try:
+            return Hist.find_one({"order":{"orderId":Bots.find_one({"_id":ObjectId(bot_id)})['order_id']}})
+        except:
+            return 0
+
+    def addCountHevOnOrder(self,bot_id,count):
+        db = self.classter["BinanceInvest"]
+        Bots = db["Bots"]
+
+        Bots.update_one({"_id": bot_id}, {"$inc": {"count_hev": +count}})
 
     def getAllHist(self):
         db = self.classter["BinanceInvest"]
         Hist = db["Hist"]
 
-        return Hist.find({})
+        return reversed(list(Hist.find({})))
+
+    def getHistToDey(self):
+        db = self.classter["BinanceInvest"]
+        Hist = db["Hist"]
+
+        return reversed(list(Hist.find({"date": {"$lte": datetime.now(),
+                                                 "$gte": (datetime.now() - timedelta(days=1)).replace(microsecond=0,
+                                                                                                      hour=0, minute=0,
+                                                                                                      second=0)}})))
+
+    def getHistByDay(self, date):
+        db = self.classter["BinanceInvest"]
+        Hist = db["Hist"]
+        trday = (datetime.now() - timedelta(days=(datetime.now() - datetime.strptime(date, '%Y-%m-%d')).days)).replace(
+            microsecond=0, hour=0, minute=0, second=0)
+        print(trday - timedelta(days=1))
+        print(trday)
+        return reversed(list(Hist.find({"date": {"$lte": trday + timedelta(days=1),
+                                                 "$gte": trday}})))
+
+    def getHistByBotId(self, id):
+        db = self.classter["BinanceInvest"]
+        Hist = db["Hist"]
+
+        return reversed(list(Hist.find({"bot_id": ObjectId(id), "date":
+            {"$lte": datetime.now(),
+             "$gte": (datetime.now() - timedelta(days=1)).replace(
+                 microsecond=0, hour=0, minute=0, second=0)}})))
+
+    def getHistByBotIdDate(self, id, date):
+        db = self.classter["BinanceInvest"]
+        Hist = db["Hist"]
+
+        trday = (datetime.now() - timedelta(days=(datetime.now() - datetime.strptime(date, '%Y-%m-%d')).days)).replace(
+            microsecond=0, hour=0, minute=0, second=0)
+
+        return reversed(list(Hist.find({"bot_id": ObjectId(id), "date": {"$lte": trday + timedelta(days=1),
+                                                                         "$gte": trday}})))
+
+    def openHistBotDate(self,id):
+        db = self.classter["BinanceInvest"]
+        Hist = db["Hist"]
+        date = []
+        for d in Hist.find({"bot_id": ObjectId(id)}):
+            if d['date'].strftime('%Y-%m-%d') not in date:
+                date.append(d['date'].strftime('%Y-%m-%d'))
+            else:
+                pass
+        return date
+
+
+    def getHistByProcDayBot(self, prof, date,id):
+        db = self.classter["BinanceInvest"]
+        Hist = db["Hist"]
+
+        trday = (datetime.now() - timedelta(days=(datetime.now() - datetime.strptime(date, '%Y-%m-%d')).days)).replace(
+            microsecond=0, hour=0, minute=0, second=0)
+
+        return reversed(list(Hist.find({"profit": {"$lte": prof, "$gt": 0},
+                                        "date": {"$lte": trday + timedelta(days=1),
+                                                 "$gte": trday},
+                                        "bot_id":ObjectId(id)})))
+
+
+    def getHistByProcBot(self, prof,id):
+        db = self.classter["BinanceInvest"]
+        Hist = db["Hist"]
+
+        return reversed(list(Hist.find({"profit": {"$lte": prof, "$gt": 0},
+                                        "date":
+                                            {"$lte": datetime.now(),
+                                             "$gte": (datetime.now() - timedelta(days=1)).replace(
+                                                 microsecond=0, hour=0, minute=0, second=0)},
+                                        "bot_id":ObjectId(id)})))
+
+
+
+
+
+    def getHistByProc(self, prof):
+        db = self.classter["BinanceInvest"]
+        Hist = db["Hist"]
+
+        return reversed(list(Hist.find({"profit": {"$lte": prof, "$gt": 0},
+                                        "date":
+                                            {"$lte": datetime.now(),
+                                             "$gte": (datetime.now() - timedelta(days=1)).replace(
+                                                 microsecond=0, hour=0, minute=0, second=0)}})))
+
+    def getHistByProcDay(self, prof, date):
+        db = self.classter["BinanceInvest"]
+        Hist = db["Hist"]
+
+        trday = (datetime.now() - timedelta(days=(datetime.now() - datetime.strptime(date, '%Y-%m-%d')).days)).replace(
+            microsecond=0, hour=0, minute=0, second=0)
+
+        return reversed(list(Hist.find({"profit": {"$lte": prof, "$gt": 0},
+                                        "date": {"$lte": trday + timedelta(days=1),
+                                                 "$gte": trday}})))
+
+
+    def openHistByProc(self,prof):
+        db = self.classter["BinanceInvest"]
+        Hist = db["Hist"]
+        date = []
+
+        for d in Hist.find({}):
+            if d['date'].strftime('%Y-%m-%d') not in date and d['profit'] <= float(prof) and d['profit'] > 0:
+                date.append(d['date'].strftime('%Y-%m-%d'))
+            else:
+                pass
+        return date
+
+    def openHistDate(self):
+        db = self.classter["BinanceInvest"]
+        Hist = db["Hist"]
+        date = []
+        for d in Hist.find({}):
+            if d['date'].strftime('%Y-%m-%d') not in date:
+                date.append(d['date'].strftime('%Y-%m-%d'))
+            else:
+                pass
+        return date

@@ -2,10 +2,53 @@
 
 {% block main %}
 
+<div class="ui raised very padded segment">
+    <div class="fields">
+        <form name="1" method="post">
 
+            <div class="field">
+                <label>Выберите дату:</label>
+                <input type="date" name="calendar">
+            </div>
+            <div class="field">
+                <label>Поиск по проценту: </label>
+                <input type="number" name="proc">
+            </div>
+            <p><input type="submit" class="mini ui button" name="all" value="Фильтрировать"></p>
+
+        </form>
+        <form method="post">
+            <div class="field">
+
+                <label>Доступные даты</label>
+                <select name="dataopen" class="ui fluid dropdown livesearch">
+                    {% for b in d %}
+                    <option value="{{b}}">{{b}}</option>
+                    {% endfor %}
+
+                </select>
+                <p><input type="submit" class="mini ui button" name="all" value="Поиск по дате"></p>
+
+
+            </div>
+        </form>
+    </div>
+
+</div>
+
+
+<script type="text/javascript">
+	      $(".js-select2").chosen();
+
+
+
+
+
+</script>
 <div class="ui vertical masthead center aligned segment">
 
     <table class="ui celled table">
+
         <thead>
         <tr>
             <th>Тип</th>
@@ -22,7 +65,7 @@
         <tr>
             <td data-label="Name">{{h.type}}</td>
             <td data-label="Age">{{h.valute_par}}</td>
-            <td data-label="Name">{{h.bot_id}}</td>
+            <td data-label="Name"><a href="/message/{{h.bot_id}}">{{h.bot_id}}</a></td>
             <td data-label="Job">{{h.count}}</td>
             <td data-label="Job">{{h.lvl}}</td>
             <td data-label="Job">{{h.profit}}</td>
