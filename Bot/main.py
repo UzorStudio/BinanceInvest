@@ -250,7 +250,21 @@ def botsetings(id):
                      triger=trigger)
         return redirect(f'/botsetings/{str(id)}')
     else:
-        return render_template("botsetings.html", bot=db.getBot(id))
+        bo = db.getBot(id)
+
+
+        if len(str(bo['bye_lvl']).split('e')) > 1:
+            bo['bye_lvl'] = format(float(bo['bye_lvl']), ".8f")
+        if len(str(bo['sum_invest']).split('e')) > 1:
+            bo['sum_invest'] = format(float(bo['sum_invest']), ".8f")
+        if len(str(bo['sell_lvl']).split('e')) > 1:
+            bo['sell_lvl'] = format(float(bo['bye_lvl']), ".8f")
+        if len(str(bo['triger_lvl']).split('e')) > 1:
+            bo['triger_lvl'] = format(float(bo['sell_lvl']), ".8f")
+        if len(str(bo['count_hev']).split('e')) > 1:
+            bo['count_hev'] = format(float(bo['count_hev']), ".8f")
+
+        return render_template("botsetings.html", bot=bo)
 
 
 @app.route("/message", methods=["POST", "GET"])
