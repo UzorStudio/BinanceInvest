@@ -43,8 +43,10 @@ def index():
     if request.method == "POST":
 
         symbol = request.form["symbol"]
-
-        bots = db.getBotsBySymbol(symbol)
+        if symbol !='':
+            bots = db.getBotsBySymbol(symbol)
+        else:
+            bots = db.getAllBots()
         b = []
 
         info = client.get_account()['balances']
