@@ -14,7 +14,7 @@ from Bot import bin_func
 
 db = base.Base("mongodb://Roooasr:sedsaigUG12IHKJhihsifhaosf@mongodb:27017/")
 #db = base.Base("localhost")
-API_PATH = "Bot/conf.txt"
+API_PATH = "conf.txt"
 
 apis = open(API_PATH,"r").readlines()
 print(apis)

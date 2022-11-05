@@ -2,14 +2,6 @@ from binance.client import Client
 import helpFunctions as hlp
 import logging
 
-API_PATH = "Bot/conf.txt"
-apis = open(API_PATH,"r").readlines()
-client = Client(apis[0].replace("\n",""),
-                apis[1].replace("\n",""),
-                testnet=True)
-
-
-
 def Bye(symb,inv_sum,client):
     h = hlp.getminQty_test(symb)
     sy = hlp.split_symbol_test(symb)
