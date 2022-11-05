@@ -9,8 +9,7 @@ from flask import Flask, render_template, request, redirect, session
 import base
 from datetime import datetime
 from threading import Thread
-
-from Bot import bin_func
+import bin_func
 
 db = base.Base("mongodb://Roooasr:sedsaigUG12IHKJhihsifhaosf@mongodb:27017/")
 #db = base.Base("localhost")
