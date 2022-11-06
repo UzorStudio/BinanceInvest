@@ -66,7 +66,9 @@ class Base:
             'spent':0,
             "order_id":0,
             'not_archive': True,
-            'triger': triger
+            'triger': triger,
+            "cikle_profit":0,
+            "total_profit":0
         }
 
         return Bots.insert_one(post).inserted_id
@@ -112,7 +114,8 @@ class Base:
             'last_bye': Bots.find_one({"_id": ObjectId(id)})['last_bye'],  # Записывать id последней покупки
             'first_bye': Bots.find_one({"_id": ObjectId(id)})['first_bye'],  # Записывать id первой покупки
             'not_archive': Bots.find_one({"_id": ObjectId(id)})['not_archive'],
-            'triger': triger
+            'triger': triger,
+            "earned":0
         }
 
         Bots.update_one({"_id": ObjectId(id)}, {"$set": post})
@@ -202,6 +205,9 @@ class Base:
         Bots.update_one({"_id": bot_id}, {"$set": {"spent": 0}})
         Bots.update_one({"_id": bot_id}, {"$set": {"first_bye": ""}})
         Bots.update_one({"_id": bot_id}, {"$inc": {"sum_invest": (bot['sum_invest'] * (profit / 100))}})
+        Bots.update_one({"_id": bot_id}, {"$set": {"cikle_profit": profit}})
+        Bots.update_one({"_id": bot_id}, {"$inc": {"total_profit": +profit}})
+        Bots.update_one({"_id": bot_id}, {"$inc": {"earned": +(count-spent)}})
         Hist.insert_one(post)
 
     def postOperationOrgerBy(self, bye_lvl, valute_par, count, bot_id, orger_id,orger):

@@ -72,16 +72,21 @@
                 <div class="meta">
                     Сумма инвестиций: {{b.bot.sum_invest}}<br>
                     Объем закупки: {{b.bot.count_hev}}<br>
-                    До уровня Покупки: {{b.razn}}%<br>
-                    До уровня Продажи: {{b.razn_sell}}%
+                    Доход за цикл: {{b.bot.cikle_profit}}%<br>
+                    Общий доход: {{b.bot.total_profit}}%<br>
+                    Всего заработано: {{b.bot.earned}}<br>
+                    До уровня Покупки: {{b.razn}}% {{b.side}}<br>
+                    До уровня Продажи: {{b.razn_sell}}% {{b.side_sell}}
                 </div>
                 <div class="description">
                     <p>Уровень покупки: {{b.bot.bye_lvl}}</p>
                     <p>Уровень продажи: {{b.bot.sell_lvl}}</p>
                     <p>Тригер цена: {{b.bot.triger_lvl}}</p>
                     <p>Валютная пара: <br>{{b.bot.valute_par}} <strong>{{b.price}}</strong></p>
-                    <p>Частота проверки: {{b.bot.check_time}} {{b.bot.valuecheck}}</p>
-                    <p>Следущая проверка:{{b.bot.next_check}}</p>
+                    <div class="meta">
+                        <p>Частота проверки: {{b.bot.check_time}} {{b.bot.valuecheck}}</p>
+                        <p>Следущая проверка:{{b.bot.next_check}}</p>
+                    </div>
                 </div>
             </div>
             <div class="extra content">

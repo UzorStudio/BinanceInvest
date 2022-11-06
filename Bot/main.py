@@ -59,6 +59,8 @@ def index():
         for bot in bots:
             razn = 0
             razn_sell = 0
+            side=''
+            side_sell = ''
             price = float(client.get_avg_price(symbol=bot['valute_par'])['price'])
             if len(str(bot['bye_lvl']).split('e')) > 1:
                 bot['bye_lvl'] = format(float(bot['bye_lvl']), ".8f")
@@ -74,14 +76,18 @@ def index():
                 price = format(float(price), ".9f")
             if bot['bye_lvl'] < price:
                 razn = 100*(1-float(bot['bye_lvl'])/float(price))
+                side='▲'
             if bot['bye_lvl'] > price:
                 razn = 100 * (1 - float(price)/float(bot['bye_lvl']))
+                side='▼'
             if bot['sell_lvl'] < price:
+                side_sell = '▲'
                 razn_sell = 100*(1-float(bot['sell_lvl'])/float(price))
             if bot['sell_lvl'] > price:
+                side_sell = '▼'
                 razn_sell = 100 * (1 - float(price)/float(bot['sell_lvl']))
 
-            b.append({"bot": bot, "price": price, "razn": toFixed(razn,2),"razn_sell":toFixed(razn_sell,2)})
+            b.append({"bot": bot, "price": price, "razn": toFixed(razn,2),"side":side,"razn_sell":toFixed(razn_sell,2),'side_sell':side_sell})
 
         return render_template("index.html", bo=b, par=db.openSymbol(),balance = balances)
 
@@ -98,6 +104,9 @@ def index():
 
         for bot in bots:
             razn = 0
+            side_sell = 0
+            side = 0
+            razn_sell = 0
             price = float(client.get_avg_price(symbol=bot['valute_par'])['price'])
             if len(str(bot['bye_lvl']).split('e')) > 1:
                 bot['bye_lvl'] = format(float(bot['bye_lvl']), ".8f")
@@ -113,10 +122,20 @@ def index():
                 price = format(float(price), ".8f")
             if bot['bye_lvl'] < price:
                 razn = 100 * (1 - float(bot['bye_lvl']) / float(price))
+                side = '▲'
             if bot['bye_lvl'] > price:
                 razn = 100 * (1 - float(price) / float(bot['bye_lvl']))
-            b.append({"bot": bot, "price": price, "razn": toFixed(razn,2)})
+                side = '▼'
+            if bot['sell_lvl'] < price:
+                side_sell = '▲'
+                razn_sell = 100 * (1 - float(bot['sell_lvl']) / float(price))
+            if bot['sell_lvl'] > price:
+                side_sell = '▼'
+                razn_sell = 100 * (1 - float(price) / float(bot['sell_lvl']))
 
+            b.append(
+                {"bot": bot, "price": price, "razn": toFixed(razn, 2), "side": side, "razn_sell": toFixed(razn_sell, 2),
+                 'side_sell': side_sell})
 
         return render_template("index.html", bo=b,par=db.openSymbol(),balance = balances)
 
@@ -254,15 +273,15 @@ def botsetings(id):
 
 
         if len(str(bo['bye_lvl']).split('e')) > 1:
-            bo['bye_lvl'] = format(float(bo['bye_lvl']), ".9f")
+            bo['bye_lvl'] = format(float(bo['bye_lvl']), ".8f")
         if len(str(bo['sum_invest']).split('e')) > 1:
-            bo['sum_invest'] = format(float(bo['sum_invest']), ".9f")
+            bo['sum_invest'] = format(float(bo['sum_invest']), ".8f")
         if len(str(bo['sell_lvl']).split('e')) > 1:
-            bo['sell_lvl'] = format(float(bo['bye_lvl']), ".9f")
+            bo['sell_lvl'] = format(float(bo['sell_lvl']), ".8f")
         if len(str(bo['triger_lvl']).split('e')) > 1:
-            bo['triger_lvl'] = format(float(bo['sell_lvl']), ".9f")
+            bo['triger_lvl'] = format(float(bo['triger_lvl']), ".8f")
         if len(str(bo['count_hev']).split('e')) > 1:
-            bo['count_hev'] = format(float(bo['count_hev']), ".9f")
+            bo['count_hev'] = format(float(bo['count_hev']), ".8f")
 
         return render_template("botsetings.html", bot=bo)
 
