@@ -9,19 +9,29 @@ def Bye(symb,inv_sum,client):
 
 
     cn = float(format(inv_sum / float(price), f".{h['lot_size'] + 1}f"))
+    print(f"cn1: {cn}")
+    mx = hlp.market_lot_size_test(symb)["maxQty"]
+    print(f"mx {mx}")
+    if cn > mx:
+        cn = int(mx)
 
     s = hlp.split_symbol_test(symb)
     logging.info(f"Bye: Inv Sum:{inv_sum} Bye Sum:{cn} {s['baseAsset']}")
     for b in client.get_account()['balances']:
         if b['asset'] == s["quoteAsset"] and float(b['free']) <= inv_sum:
             cn= float(format(float(b['free']), f".{h['lot_size'] + 1}f"))
-
+            print(f"cn1 non balance: {cn}")
 
     for b in client.get_account()['balances']:
         if b['asset'] == s['quoteAsset'] and float(b['free']) < inv_sum:
             return False
         elif b['asset'] == s['quoteAsset'] and float(b['free']) >= inv_sum:
-
+            print(f"cn2: {cn} lot_size: {h}")
+            c = hlp.numFrontZero(cn)
+            print(f"c: {c}")
+            if c['count'] == 1 and c['count'] < 5:
+                cn = int(cn)
+                print(f"cn3:{cn}")
             order = client.order_market_buy(
                 symbol=symb,
                 quantity=cn

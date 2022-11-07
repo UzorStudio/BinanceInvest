@@ -14,6 +14,20 @@ except:
     print("exchange_info open err")
 
 
+def numFrontZero(num):
+    num = list(str(float(num)).split(".")[1])
+    count = len(num)
+    return ({"count":count,"num":int("".join(num))})
+
+def market_lot_size_test(symbol):
+    for i in inf_test['symbols']:
+        if i["symbol"] == symbol:
+            for s in i["filters"]:
+                #print(f"help: {s}")
+                if s['filterType'] == 'MARKET_LOT_SIZE':
+                    return {"minQty":float(s['minQty']),"maxQty":float(s['maxQty'])}
+
+print(numFrontZero(2.222))
 def split_symbol_test(symbol):
     for i in inf_test['symbols']:
         if i["symbol"] == symbol:
@@ -29,7 +43,7 @@ def getminQty_test(symbol):
 
     for i in inf_test['symbols']:
         if i["symbol"] == symbol:
-            #print(f"help: {i}")
+            print(f"help: {i}")
             for s in i["filters"]:
                 #print(f"help: {s}")
                 if s['filterType'] == 'LOT_SIZE':
