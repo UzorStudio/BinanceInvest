@@ -184,12 +184,13 @@ class Base:
         db = self.classter["BinanceInvest"]
         Hist = db["Hist"]
         Bots = db["Bots"]
-        bot = Bots.find_one({"_id": bot_id})
+        bot = Bots.find_one({"_id": ObjectId(bot_id)})
 
 
         spent = bot['spent']
         price_sell = count
-        profit = 100 - ((float(spent) / float(price_sell)) * 100)
+        profit = ((1-(float(spent) / float(price_sell))) * 100)
+
 
         post = {
             "lvl": sell_lvl,
@@ -202,14 +203,14 @@ class Base:
             "order":order
         }
 
-        Bots.update_one({"_id": bot_id}, {"$inc": {"count_hev": -float(count)}})
-        Bots.update_one({"_id": bot_id}, {"$inc": {"spent": -float(spent)}})
-        Bots.update_one({"_id": bot_id}, {"$set": {"first_bye": ""}})
-        Bots.update_one({"_id": bot_id}, {"$inc": {"sum_invest": (bot['sum_invest'] * (profit / 100))}})
-        Bots.update_one({"_id": bot_id}, {"$set": {"cikle_profit": profit}})
-        Bots.update_one({"_id": bot_id}, {"$inc": {"total_profit": +profit}})
-        Bots.update_one({"_id": bot_id}, {"$inc": {"earned": +(float(count)-spent)}})
-        Bots.update_one({"_id": bot_id}, {"$inc": {"cikle_count": +1}})
+        Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc": {"count_hev": -float(count)}})
+        Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc": {"spent": -float(spent)}})
+        Bots.update_one({"_id": ObjectId(bot_id)}, {"$set": {"first_bye": ""}})
+        Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc": {"sum_invest": +(bot['sum_invest'] * (profit / 100))}})
+        Bots.update_one({"_id": ObjectId(bot_id)}, {"$set": {"cikle_profit": profit}})
+        Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc": {"total_profit": +profit}})
+        Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc": {"earned": +(float(count)-spent)}})
+        Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc": {"cikle_count": +1}})
         Hist.insert_one(post)
 
     def postOperationOrgerBy(self, bye_lvl, valute_par, count, bot_id, orger_id,orger):

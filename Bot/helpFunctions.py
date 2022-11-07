@@ -27,7 +27,6 @@ def market_lot_size_test(symbol):
                 if s['filterType'] == 'MARKET_LOT_SIZE':
                     return {"minQty":float(s['minQty']),"maxQty":float(s['maxQty'])}
 
-print(numFrontZero(2.222))
 def split_symbol_test(symbol):
     for i in inf_test['symbols']:
         if i["symbol"] == symbol:

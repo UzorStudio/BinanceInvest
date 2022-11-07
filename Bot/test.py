@@ -1,32 +1,15 @@
-
+import base
 from binance.client import Client
 import bin_func
-client = Client("OW9lwAN9t72TYQylaKmwZqS5H3Leb4BwyzLfFWttgAtusfHLmdwXjYpZYwa4NiPu",
-                "HqkcS2ETC34T7h5SF0g9R5dyzJcMrm8fMzXotc2oQ2l9uonUSDntVPlrN34wf2o5",
-                testnet=True)
+#{'_id': ObjectId('636631a0c254806799853cb9'), 'valute_par': 'TRXBTC', 'name': 'TRXBTC', 'sum_invest': 0.1, 'bye_lvl': 3e-06, 'sell_lvl': 3.05e-06, 'triger_lvl': 3.05e-06, 'valuecheck': 'min', 'check_time': 1, 'next_check': datetime.datetime(2022, 11, 7, 12, 43, 13, 531000), 'order': False, 'count_hev': 10000.0, 'last_bye': ObjectId('6368d2f995050ace7cce1208'), 'first_bye': ObjectId('6368d2f995050ace7cce1208'), 'spent': 0.03026493, 'order_id': 0, 'not_archive': True, 'triger': True, 'earned': 0}
 
-for b in client.get_account()['balances']:
-    if float(b['free']) > 0 :
-        print(b)
-print("___________")
-for tic in client.get_all_tickers():
-    print(tic)
 #db = base.Base("localhost")
 #
-#print()
+#print(db.getBot('636631a0c254806799853cb9'))
 #
-#hlp.update(api_kay='ftt12tAsbKXzM9VKUFkOOh9n53j8DZOf6soPxL2Adx7qRl8KVMj77qJQp4ieues9',
-#           api_secret='c8ajF3CkeAfLTxf14EkZzD6LnzkF7t5UduoXCG0sCWGHpwMXlZxvW4LIZJ7Bc5Ri',
-#           test_net_on=False)
-print(client.get_symbol_info(symbol='TRXUSDT'))
-order = bin_func.BuyOrder(symb="TRXUSDT",
-                          inv_sum=10,
-                          priceb=float(client.get_avg_price(symbol='TRXUSDT')['price']),
-                          client=client
-                          )
-print(order)
-
-
+#db.postOperationSell(bot_id='636631a0c254806799853cb9',sell_lvl=3.05e-06,valute_par='TRXBTC',order="orderID",count=0.13)
+#
+#print(db.getBot('636631a0c254806799853cb9'))
 #client = Client("OW9lwAN9t72TYQylaKmwZqS5H3Leb4BwyzLfFWttgAtusfHLmdwXjYpZYwa4NiPu",
 #                "HqkcS2ETC34T7h5SF0g9R5dyzJcMrm8fMzXotc2oQ2l9uonUSDntVPlrN34wf2o5",
 #                testnet=True)
