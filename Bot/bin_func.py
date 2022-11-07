@@ -10,7 +10,7 @@ def Bye(symb,inv_sum,client):
 
     cn = float(format(inv_sum / float(price), f".{h['lot_size'] + 1}f"))
 
-    s = hlp.split_symbol(symb)
+    s = hlp.split_symbol_test(symb)
     logging.info(f"Bye: Inv Sum:{inv_sum} Bye Sum:{cn} {s['baseAsset']}")
     for b in client.get_account()['balances']:
         if b['asset'] == s["quoteAsset"] and float(b['free']) <= inv_sum:
