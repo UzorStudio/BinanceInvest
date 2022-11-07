@@ -120,16 +120,16 @@ def index():
                 bot['count_hev'] = format(float(bot['count_hev']), ".8f")
             if len(str(price).split('e')) > 1:
                 price = format(float(price), ".8f")
-            if bot['bye_lvl'] < price:
+            if float(bot['bye_lvl']) < float(price):
                 razn = 100 * (1 - float(bot['bye_lvl']) / float(price))
                 side = '▲'
-            if bot['bye_lvl'] > price:
+            if float(bot['bye_lvl']) > float(price):
                 razn = 100 * (1 - float(price) / float(bot['bye_lvl']))
                 side = '▼'
-            if bot['sell_lvl'] < price:
+            if float(bot['sell_lvl']) < float(price):
                 side_sell = '▲'
                 razn_sell = 100 * (1 - float(bot['sell_lvl']) / float(price))
-            if bot['sell_lvl'] > price:
+            if float(bot['sell_lvl']) > float(price):
                 side_sell = '▼'
                 razn_sell = 100 * (1 - float(price) / float(bot['sell_lvl']))
 
