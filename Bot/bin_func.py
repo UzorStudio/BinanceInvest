@@ -58,18 +58,20 @@ def check_order(symb,ordId,client):
 
 
 def BuyOrder(symb,inv_sum,priceb,client):
+    print(symb)
     h = hlp.getminQty_test(symb)
     sy = hlp.split_symbol_test(symb)
     price = client.get_avg_price(symbol=symb)["price"]
-
     cn = float(format(inv_sum / float(price), f".{h['lot_size'] + 1}f"))
+    print(cn)
     logging.info(f"Order Bye: {priceb} {sy['baseAsset']}")
+
     order = client.order_limit_buy(
         symbol=symb,
         quantity=cn,
         price= '{:0.0{}f}'.format(priceb, 8)
     )
-    return ({"bye": {"baseAsset": sy['baseAsset'], "count": order['executedQty']},
+    return ({"bye": {"baseAsset": sy['baseAsset'], "count": order['origQty']},
              "sell": {"quoteAsset": sy['quoteAsset'], "count": order['cummulativeQuoteQty']},
              "order": order})
 

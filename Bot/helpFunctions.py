@@ -4,11 +4,11 @@ import json
 try:
     with open('exchange_info_test.json') as json_file:
         inf_test = json.load(json_file)
-except:
-    print("exchange_info_test open err")
+except Exception as e:
+    print(f"exchange_info_test open err: {e.args}")
 
 try:
-    with open('exchange_info.json') as json_file:
+    with open('Bot/exchange_info.json') as json_file:
         inf = json.load(json_file)
 except:
     print("exchange_info open err")

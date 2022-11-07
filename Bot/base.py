@@ -68,7 +68,8 @@ class Base:
             'not_archive': True,
             'triger': triger,
             "cikle_profit":0,
-            "total_profit":0
+            "total_profit":0,
+            "cikle_count":0
         }
 
         return Bots.insert_one(post).inserted_id
@@ -208,6 +209,7 @@ class Base:
         Bots.update_one({"_id": bot_id}, {"$set": {"cikle_profit": profit}})
         Bots.update_one({"_id": bot_id}, {"$inc": {"total_profit": +profit}})
         Bots.update_one({"_id": bot_id}, {"$inc": {"earned": +(count-spent)}})
+        Bots.update_one({"_id": bot_id}, {"$inc": {"cikle_count": +1}})
         Hist.insert_one(post)
 
     def postOperationOrgerBy(self, bye_lvl, valute_par, count, bot_id, orger_id,orger):

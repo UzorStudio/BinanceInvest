@@ -1,7 +1,16 @@
-import helpFunctions as hlp
-from binance.client import Client
-import base
 
+from binance.client import Client
+import bin_func
+client = Client("OW9lwAN9t72TYQylaKmwZqS5H3Leb4BwyzLfFWttgAtusfHLmdwXjYpZYwa4NiPu",
+                "HqkcS2ETC34T7h5SF0g9R5dyzJcMrm8fMzXotc2oQ2l9uonUSDntVPlrN34wf2o5",
+                testnet=True)
+
+for b in client.get_account()['balances']:
+    if float(b['free']) > 0 :
+        print(b)
+print("___________")
+for tic in client.get_all_tickers():
+    print(tic)
 #db = base.Base("localhost")
 #
 #print()
@@ -9,9 +18,13 @@ import base
 #hlp.update(api_kay='ftt12tAsbKXzM9VKUFkOOh9n53j8DZOf6soPxL2Adx7qRl8KVMj77qJQp4ieues9',
 #           api_secret='c8ajF3CkeAfLTxf14EkZzD6LnzkF7t5UduoXCG0sCWGHpwMXlZxvW4LIZJ7Bc5Ri',
 #           test_net_on=False)
-
-s = 0.00000302
-print("".join(str(s)))
+print(client.get_symbol_info(symbol='TRXUSDT'))
+order = bin_func.BuyOrder(symb="TRXUSDT",
+                          inv_sum=10,
+                          priceb=float(client.get_avg_price(symbol='TRXUSDT')['price']),
+                          client=client
+                          )
+print(order)
 
 
 #client = Client("OW9lwAN9t72TYQylaKmwZqS5H3Leb4BwyzLfFWttgAtusfHLmdwXjYpZYwa4NiPu",

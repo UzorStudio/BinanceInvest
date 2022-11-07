@@ -76,15 +76,15 @@ def index():
                 price = format(float(price), ".9f")
             if bot['bye_lvl'] < price:
                 razn = 100*(1-float(bot['bye_lvl'])/float(price))
-                side='▲'
+                side='▼'
             if bot['bye_lvl'] > price:
                 razn = 100 * (1 - float(price)/float(bot['bye_lvl']))
-                side='▼'
+                side='▲'
             if bot['sell_lvl'] < price:
-                side_sell = '▲'
+                side_sell = '▼'
                 razn_sell = 100*(1-float(bot['sell_lvl'])/float(price))
             if bot['sell_lvl'] > price:
-                side_sell = '▼'
+                side_sell = '▲'
                 razn_sell = 100 * (1 - float(price)/float(bot['sell_lvl']))
 
             b.append({"bot": bot, "price": price, "razn": toFixed(razn,2),"side":side,"razn_sell":toFixed(razn_sell,2),'side_sell':side_sell})
