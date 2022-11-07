@@ -203,7 +203,7 @@ class Base:
         }
 
         Bots.update_one({"_id": bot_id}, {"$inc": {"count_hev": -float(count)}})
-        Bots.update_one({"_id": bot_id}, {"$set": {"spent": 0}})
+        Bots.update_one({"_id": bot_id}, {"$inc": {"spent": -float(spent)}})
         Bots.update_one({"_id": bot_id}, {"$set": {"first_bye": ""}})
         Bots.update_one({"_id": bot_id}, {"$inc": {"sum_invest": (bot['sum_invest'] * (profit / 100))}})
         Bots.update_one({"_id": bot_id}, {"$set": {"cikle_profit": profit}})

@@ -44,6 +44,10 @@ def Sell(symb,inv_sum,client):
     h = hlp.getminQty_test(symb)
     sy = hlp.split_symbol_test(symb)
     cn = float(format(inv_sum, f".{h['lot_size'] + 1}f"))
+    mx = hlp.market_lot_size_test(symb)["maxQty"]
+    if cn > mx:
+        cn = int(mx)
+
     order = client.order_market_sell(
         symbol=symb,
         quantity=cn
