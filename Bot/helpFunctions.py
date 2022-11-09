@@ -8,7 +8,7 @@ except Exception as e:
     print(f"exchange_info_test open err: {e.args}")
 
 try:
-    with open('Bot/exchange_info.json') as json_file:
+    with open('exchange_info.json') as json_file:
         inf = json.load(json_file)
 except:
     print("exchange_info open err")
@@ -64,8 +64,8 @@ def getMinInv_test(symbol):
         if i["symbol"] == symbol:
             for s in i["filters"]:
 
-                if s['filterType'] == 'LOT_SIZE':
-                    return float(s['minQty'])
+                if s['filterType'] == 'MIN_NOTIONAL':
+                    return float(s['minNotional'])
 
 
 def getMinInv(symbol):

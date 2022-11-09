@@ -19,7 +19,7 @@ def Bye(symb,inv_sum,client):
     logging.info(f"Bye: Inv Sum:{inv_sum} Bye Sum:{cn} {s['baseAsset']}")
     for b in client.get_account()['balances']:
         if b['asset'] == s["quoteAsset"] and float(b['free']) <= inv_sum:
-            cn= float(format(float(b['free']), f".{h['lot_size'] + 1}f"))
+            cn= float(format(float(b['free']-(b['free']*0.1)), f".{h['lot_size'] + 1}f"))
             print(f"cn1 non balance: {cn}")
 
     for b in client.get_account()['balances']:
@@ -80,15 +80,23 @@ def BuyOrder(symb,inv_sum,priceb,client):
     cn = float(format(inv_sum / float(price), f".{h['lot_size'] + 1}f"))
     print(cn)
     logging.info(f"Order Bye: {priceb} {sy['baseAsset']}")
+    for b in client.get_account()['balances']:
+        if b['asset'] == sy["quoteAsset"] and float(b['free']) <= inv_sum:
+            cn= float(format(float(b['free']), f".{h['lot_size'] + 1}f"))
+            print(f"cn1 non balance: {cn}")
 
-    order = client.order_limit_buy(
-        symbol=symb,
-        quantity=cn,
-        price= '{:0.0{}f}'.format(priceb, 8)
-    )
-    return ({"bye": {"baseAsset": sy['baseAsset'], "count": order['origQty']},
-             "sell": {"quoteAsset": sy['quoteAsset'], "count": order['cummulativeQuoteQty']},
-             "order": order})
+    for b in client.get_account()['balances']:
+        if b['asset'] == sy['quoteAsset'] and float(b['free']) < inv_sum:
+            return False
+        elif b['asset'] == sy['quoteAsset'] and float(b['free']) >= inv_sum:
+            order = client.order_limit_buy(
+                symbol=symb,
+                quantity=cn,
+                price= '{:0.0{}f}'.format(priceb, 8)
+            )
+            return ({"bye": {"baseAsset": sy['baseAsset'], "count": order['origQty']},
+                     "sell": {"quoteAsset": sy['quoteAsset'], "count": order['cummulativeQuoteQty']},
+                     "order": order})
 
 
 #print(ByOrder(symb='XRPBTC',inv_sum=0.1,client=client,priceb=0.00002375))

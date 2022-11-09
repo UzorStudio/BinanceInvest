@@ -122,15 +122,15 @@ def index():
                 price = format(float(price), ".8f")
             if float(bot['bye_lvl']) < float(price):
                 razn = 100 * (1 - float(bot['bye_lvl']) / float(price))
-                side = '▲'
+                side = '▼'
             if float(bot['bye_lvl']) > float(price):
                 razn = 100 * (1 - float(price) / float(bot['bye_lvl']))
-                side = '▼'
+                side = '▲'
             if float(bot['sell_lvl']) < float(price):
-                side_sell = '▲'
+                side_sell = '▼'
                 razn_sell = 100 * (1 - float(bot['sell_lvl']) / float(price))
             if float(bot['sell_lvl']) > float(price):
-                side_sell = '▼'
+                side_sell = '▲'
                 razn_sell = 100 * (1 - float(price) / float(bot['sell_lvl']))
 
             b.append(
@@ -454,12 +454,13 @@ def worker():
                                       priceb=bot['bye_lvl'],
                                       client=client)
 
-                    db.postOperationOrgerBy(bye_lvl=bot['bye_lvl'],valute_par=bot['valute_par'],count=bot['sum_invest'],bot_id=bot['_id'],orger_id=order['order']['orderId'],orger=order)
+                    if order:
+                        db.postOperationOrgerBy(bye_lvl=bot['bye_lvl'],valute_par=bot['valute_par'],count=bot['sum_invest'],bot_id=bot['_id'],orger_id=order['order']['orderId'],orger=order)
                 d = db.getOrderId(bot["_id"])
                 if d !=0:
                     try:
                         if bin_func.check_order(symb=bot['valute_par'],client=client,ordId=d["order"]["orderId"])['status'] == "FILLED":
-                            db.postOperationBye(bye_lvl=price, valute_par=bot['valute_par'], count=bot['sum_invest'],
+                            db.postOperationBye(bye_lvl=price, valute_par=bot['valute_par'], count=d["bye"]["count"],
                                                 bot_id=bot['_id'],
                                                 order=d, spent=d["bye"]["count"])
                             db.setOrder(bot["_id"],False,0)
