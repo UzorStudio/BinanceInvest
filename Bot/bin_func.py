@@ -36,26 +36,33 @@ def Bye(symb,inv_sum,client):
                 symbol=symb,
                 quantity=cn
             )
-            return ({"bye": {"baseAsset": sy['baseAsset'], "count": order['executedQty']},
+            re = ({"bye": {"baseAsset": sy['baseAsset'], "count": order['executedQty']},
                      "sell": {"quoteAsset":sy['quoteAsset'], "count":order['cummulativeQuoteQty']},
                      "order":order})
+            print(f"cn: {cn} bye:{re}")
+            return re
 
-def Sell(symb,inv_sum,client):
-    h = hlp.getminQty_test(symb)
-    sy = hlp.split_symbol_test(symb)
-    cn = float(format(inv_sum, f".{h['lot_size'] + 1}f"))
-    mx = hlp.market_lot_size_test(symb)["maxQty"]
-    if cn > mx:
-        cn = int(mx)
-    print(f"cn sell: cn")
+def Sell(symb,inv_sum,price,client):
+    if price <= float(client.get_avg_price(symbol=symb)["price"]):
+        h = hlp.getminQty_test(symb)
+        sy = hlp.split_symbol_test(symb)
+        cn = float(format(inv_sum, f".{h['lot_size'] + 1}f"))
+        mx = hlp.market_lot_size_test(symb)["maxQty"]
+        if cn > mx:
+            cn = int(mx)
+        print(f"cn sell: cn")
 
-    order = client.order_market_sell(
-        symbol=symb,
-        quantity=cn
-    )
-    return  ({"sell":{"quoteAsset":sy['quoteAsset'], "count":order['cummulativeQuoteQty']},
-              "bye":{"baseAsset": sy['baseAsset'], "count": order['executedQty']},
-              "order":order})
+        order = client.order_market_sell(
+            symbol=symb,
+            quantity=cn
+        )
+        re = ({"sell":{"quoteAsset":sy['quoteAsset'], "count":order['cummulativeQuoteQty']},
+                  "bye":{"baseAsset": sy['baseAsset'], "count": order['executedQty']},
+                  "order":order})
+        print(f"cn: {cn} sell:{re}")
+        return re
+    else:
+        return False
 
 def getOrder(type,symb,client):
     orders = []
@@ -94,9 +101,11 @@ def BuyOrder(symb,inv_sum,priceb,client):
                 quantity=cn,
                 price= '{:0.0{}f}'.format(priceb, 8)
             )
-            return ({"bye": {"baseAsset": sy['baseAsset'], "count": order['origQty']},
+            re = ({"bye": {"baseAsset": sy['baseAsset'], "count": order['origQty']},
                      "sell": {"quoteAsset": sy['quoteAsset'], "count": order['cummulativeQuoteQty']},
                      "order": order})
+            print(re)
+            return re
 
 
 #print(ByOrder(symb='XRPBTC',inv_sum=0.1,client=client,priceb=0.00002375))

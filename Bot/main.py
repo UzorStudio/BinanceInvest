@@ -65,9 +65,17 @@ def index():
             if len(str(bot['bye_lvl']).split('e')) > 1:
                 bot['bye_lvl'] = format(float(bot['bye_lvl']), ".8f")
             if len(str(bot['sum_invest']).split('e')) > 1:
-                bot['sum_invest'] = format(float(bot['sum_invest']), ".8f")
+                bot['sum_invest'] =toFixed(bot['sum_invest'],8)
             if len(str(bot['sell_lvl']).split('e')) > 1:
                 bot['sell_lvl'] = format(float(bot['sell_lvl']), ".8f")
+            if len(str(bot['earned']).split('e')) > 1:
+                bot['earned'] = toFixed(bot['earned'],8)
+            if len(str(bot['spent']).split('e')) > 1:
+                bot['spent'] = toFixed(bot['spent'],8)
+            if len(str(bot['cikle_profit']).split('e')) > 1:
+                bot['cikle_profit'] = toFixed(bot['cikle_profit'],8)
+            if len(str(bot['total_profit']).split('e')) > 1:
+                bot['total_profit'] = toFixed(bot['total_profit'],8)
             if len(str(bot['triger_lvl']).split('e')) > 1:
                 bot['triger_lvl'] = format(float(bot['triger_lvl']), ".8f")
             if len(str(bot['count_hev']).split('e')) > 1:
@@ -111,25 +119,33 @@ def index():
             if len(str(bot['bye_lvl']).split('e')) > 1:
                 bot['bye_lvl'] = format(float(bot['bye_lvl']), ".8f")
             if len(str(bot['sum_invest']).split('e')) > 1:
-                bot['sum_invest'] = format(float(bot['sum_invest']), ".8f")
+                bot['sum_invest'] = toFixed(bot['sum_invest'], 8)
             if len(str(bot['sell_lvl']).split('e')) > 1:
                 bot['sell_lvl'] = format(float(bot['sell_lvl']), ".8f")
+            if len(str(bot['earned']).split('e')) > 1:
+                bot['earned'] = toFixed(bot['earned'], 8)
+            if len(str(bot['spent']).split('e')) > 1:
+                bot['spent'] = toFixed(bot['spent'], 8)
+            if len(str(bot['cikle_profit']).split('e')) > 1:
+                bot['cikle_profit'] = toFixed(bot['cikle_profit'], 2)
+            if len(str(bot['total_profit']).split('e')) > 1:
+                bot['total_profit'] = toFixed(bot['total_profit'], 2)
             if len(str(bot['triger_lvl']).split('e')) > 1:
                 bot['triger_lvl'] = format(float(bot['triger_lvl']), ".8f")
             if len(str(bot['count_hev']).split('e')) > 1:
                 bot['count_hev'] = format(float(bot['count_hev']), ".8f")
             if len(str(price).split('e')) > 1:
-                price = format(float(price), ".8f")
-            if float(bot['bye_lvl']) < float(price):
+                price = format(float(price), ".9f")
+            if bot['bye_lvl'] < price:
                 razn = 100 * (1 - float(bot['bye_lvl']) / float(price))
                 side = '▼'
-            if float(bot['bye_lvl']) > float(price):
+            if bot['bye_lvl'] > price:
                 razn = 100 * (1 - float(price) / float(bot['bye_lvl']))
                 side = '▲'
-            if float(bot['sell_lvl']) < float(price):
+            if bot['sell_lvl'] < price:
                 side_sell = '▼'
                 razn_sell = 100 * (1 - float(bot['sell_lvl']) / float(price))
-            if float(bot['sell_lvl']) > float(price):
+            if bot['sell_lvl'] > price:
                 side_sell = '▲'
                 razn_sell = 100 * (1 - float(price) / float(bot['sell_lvl']))
 
@@ -205,7 +221,7 @@ def create():
                         valuecheck=valuecheck,
                         check_time=check_time,
                         triger=trigger)
-        return redirect(f'/message/{str(ids)}')
+        return redirect('/')
     else:
 
         info = client.get_account()['balances']
@@ -442,8 +458,9 @@ def worker():
 
                 elif price >= bot['sell_lvl'] and bot['count_hev'] > 0: # SELL
 
-                    order = bin_func.Sell(bot['valute_par'],inv_sum=bot['count_hev'],client=client)
-                    db.postOperationSell(sell_lvl=price,valute_par=bot['valute_par'],count=order['sell']['count'],bot_id=bot['_id'],order=order)
+                    order = bin_func.Sell(bot['valute_par'],inv_sum=bot['count_hev'],client=client,price=price)
+                    if order and order['bye'] > 0:
+                        db.postOperationSell(sell_lvl=price,valute_par=bot['valute_par'],count=order['sell']['count'],bot_id=bot['_id'],order=order)
 
 
 

@@ -69,7 +69,9 @@ class Base:
             'triger': triger,
             "cikle_profit":0,
             "total_profit":0,
-            "cikle_count":0
+            "cikle_count":0,
+            "base_sum_invest":float(sum_invest),
+            "earned": 0
         }
 
         return Bots.insert_one(post).inserted_id
@@ -116,7 +118,6 @@ class Base:
             'first_bye': Bots.find_one({"_id": ObjectId(id)})['first_bye'],  # Записывать id первой покупки
             'not_archive': Bots.find_one({"_id": ObjectId(id)})['not_archive'],
             'triger': triger,
-            "earned":0
         }
 
         Bots.update_one({"_id": ObjectId(id)}, {"$set": post})
@@ -175,10 +176,7 @@ class Base:
 
         Bots.update_one({"_id": bot_id}, {"$inc": {"count_hev": +count}})
         Bots.update_one({"_id": bot_id}, {"$inc": {"spent": +spent}})
-        ids = Hist.insert_one(post).inserted_id
-        if Bots.find_one({"_id": bot_id})['first_bye'] == "":
-            Bots.update_one({"_id": bot_id}, {"$set": {"first_bye": ids}})
-        Bots.update_one({"_id": bot_id}, {"$set": {"last_bye": ids}})
+        Hist.insert_one(post).inserted_id
 
     def postOperationSell(self, bot_id, sell_lvl, valute_par, count, order):
         db = self.classter["BinanceInvest"]
@@ -191,6 +189,9 @@ class Base:
         print(f"{spent} {count}")
         count_percent = float(count)/spent_percent
         profit = 100-count_percent
+
+        total_percent = (1-(bot['base_sum_invest']/(bot['sum_invest'] * (profit / 100))))*100
+
         print(profit)
         post = {
             "lvl": sell_lvl,
@@ -208,13 +209,12 @@ class Base:
         print(f"ch {ch}")
         sp = Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc": {"spent": -float(spent)}}).raw_result
         print(f"sp {sp}")
-        Bots.update_one({"_id": ObjectId(bot_id)}, {"$set": {"first_bye": ""}})
         si = Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc": {"sum_invest": +(bot['sum_invest'] * (profit / 100))}}).raw_result
         print(f"si {si}")
         cp = Bots.update_one({"_id": ObjectId(bot_id)}, {"$set": {"cikle_profit": profit}})
         print(f"cp {cp}")
-        Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc": {"total_profit": +profit}})
-        Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc": {"earned": +(spent-float(count))}})
+        Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc": {"total_profit": +total_percent}})
+        Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc": {"earned": +(float(count)-spent)}})
         Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc": {"cikle_count": +1}})
         Hist.insert_one(post)
 
