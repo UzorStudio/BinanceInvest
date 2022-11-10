@@ -459,7 +459,7 @@ def worker():
                 elif price >= bot['sell_lvl'] and bot['count_hev'] > 0: # SELL
 
                     order = bin_func.Sell(bot['valute_par'],inv_sum=bot['count_hev'],client=client,price=price)
-                    if order and order['bye']['count'] > 0:
+                    if order and float(order['bye']['count']) > 0:
                         db.postOperationSell(sell_lvl=price,valute_par=bot['valute_par'],count=order['sell']['count'],bot_id=bot['_id'],order=order)
 
 
