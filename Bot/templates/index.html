@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
 {% block main %}
-	<meta http-equiv="Refresh" content="15" />
 <div class="ui raised very padded text container segment">
     <div class="ui raised very padded segment">
         <div class="fields">
@@ -29,7 +28,7 @@
         {% for b in balance %}
         <div class="column">
             <div class="content">
-                <div class="meta">{{b.asset}}: {{b.free}}</div>
+                <div class="meta">{{b.asset}}: free: {{b.free}} locked: {{b.locked}}</div>
             </div>
         </div>
         {% endfor %}
@@ -78,6 +77,7 @@
                     До уровня Покупки: {{b.razn}}% {{b.side}}<br>
                     До уровня Продажи: {{b.razn_sell}}% {{b.side_sell}}
                     Сумма инвестиций: {{b.bot.sum_invest}}<br>
+                    Свободно: {{b.bot.total_sum_invest}} из {{b.bot.base_total_sum_invest}}<br>
                 </div>
                 <div class="description">
                     Объем закупки: {{b.bot.count_hev}}<br>

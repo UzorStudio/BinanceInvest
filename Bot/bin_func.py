@@ -2,8 +2,9 @@ from binance.client import Client
 import helpFunctions as hlp
 import logging
 
-def Bye(symb,inv_sum,client):
+def Bye(symb,inv_sum,client,balance):
     h = hlp.getminQty_test(symb)
+    minInv =hlp.getMinInv_test(symb)
     sy = hlp.split_symbol_test(symb)
     price = client.get_avg_price(symbol=symb)["price"]
 
@@ -15,32 +16,32 @@ def Bye(symb,inv_sum,client):
     if cn > mx:
         cn = int(mx)
 
+    if balance < minInv:
+        return False
+
     s = hlp.split_symbol_test(symb)
     logging.info(f"Bye: Inv Sum:{inv_sum} Bye Sum:{cn} {s['baseAsset']}")
-    for b in client.get_account()['balances']:
-        if b['asset'] == s["quoteAsset"] and float(b['free']) <= inv_sum:
-            cn= float(format(float(b['free']-(b['free']*0.1)), f".{h['lot_size'] + 1}f"))
-            print(f"cn1 non balance: {cn}")
+    if float(balance) < inv_sum:
+        cn= float(format(float(balance), f".{h['lot_size'] + 1}f"))
+        print(f"cn1 non balance: {cn}")
 
-    for b in client.get_account()['balances']:
-        if b['asset'] == s['quoteAsset'] and float(b['free']) < inv_sum:
-            return False
-        elif b['asset'] == s['quoteAsset'] and float(b['free']) >= inv_sum:
-            print(f"cn2: {cn} lot_size: {h}")
-            c = hlp.numFrontZero(cn)
-            print(f"c: {c}")
-            if c['count'] == 1 and c['count'] < 5:
-                cn = int(cn)
-                print(f"cn3:{cn}")
-            order = client.order_market_buy(
-                symbol=symb,
-                quantity=cn
-            )
-            re = ({"bye": {"baseAsset": sy['baseAsset'], "count": order['executedQty']},
-                     "sell": {"quoteAsset":sy['quoteAsset'], "count":order['cummulativeQuoteQty']},
-                     "order":order})
-            print(f"cn: {cn} bye:{re}")
-            return re
+
+    if float(balance) >= inv_sum:
+        print(f"cn2: {cn} lot_size: {h}")
+        c = hlp.numFrontZero(cn)
+        print(f"c: {c}")
+        if c['count'] == 1 and c['count'] < 5:
+            cn = int(cn)
+            print(f"cn3:{cn}")
+        order = client.order_market_buy(
+            symbol=symb,
+            quantity=cn
+        )
+        re = ({"bye": {"baseAsset": sy['baseAsset'], "count": order['executedQty']},
+                 "sell": {"quoteAsset":sy['quoteAsset'], "count":order['cummulativeQuoteQty']},
+                 "order":order})
+        print(f"cn: {cn} bye:{re}")
+        return re
 
 def Sell(symb,inv_sum,price,client):
     if price <= float(client.get_avg_price(symbol=symb)["price"]):

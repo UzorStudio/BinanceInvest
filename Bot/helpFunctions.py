@@ -2,7 +2,7 @@ from binance.client import Client
 import json
 
 try:
-    with open('exchange_info_test.json') as json_file:
+    with open('Bot/exchange_info_test.json') as json_file:
         inf_test = json.load(json_file)
 except Exception as e:
     print(f"exchange_info_test open err: {e.args}")

@@ -11,9 +11,9 @@ from datetime import datetime
 from threading import Thread
 import bin_func
 
-db = base.Base("mongodb://Roooasr:sedsaigUG12IHKJhihsifhaosf@mongodb:27017/")
-#db = base.Base("localhost")
-API_PATH = "conf.txt"
+#db = base.Base("mongodb://Roooasr:sedsaigUG12IHKJhihsifhaosf@mongodb:27017/")
+db = base.Base("localhost")
+API_PATH = "Bot/conf.txt"
 
 apis = open(API_PATH,"r").readlines()
 print(apis)
@@ -134,6 +134,8 @@ def index():
                 bot['triger_lvl'] = format(float(bot['triger_lvl']), ".8f")
             if len(str(bot['count_hev']).split('e')) > 1:
                 bot['count_hev'] = format(float(bot['count_hev']), ".8f")
+            if len(str(bot['total_sum_invest']).split('e')) > 1:
+                bot['total_sum_invest'] = toFixed(bot['total_sum_invest'],8)
             if len(str(price).split('e')) > 1:
                 price = format(float(price), ".9f")
             if bot['bye_lvl'] < price:
@@ -211,6 +213,7 @@ def create():
             triger_lvl = 0
         valuecheck = request.form["valuecheck"]
         check_time = request.form["check_time"]
+        total_sum_invest = request.form["total_sum_invest"]
 
         ids = db.regBot(valute_par=valute_par,
                         name=name,
@@ -220,7 +223,8 @@ def create():
                         triger_lvl=triger_lvl,
                         valuecheck=valuecheck,
                         check_time=check_time,
-                        triger=trigger)
+                        triger=trigger,
+                        total_sum_invest=total_sum_invest)
         return redirect('/')
     else:
 
@@ -264,6 +268,7 @@ def botsetings(id):
         trigger = False
 
         sum_invest = request.form["sum_invest"]
+        total_sum_invest = request.form["total_sum_invest"]
         bye_lvl = request.form["bye_lvl"]
         sell_lvl = request.form["sell_lvl"]
         try:
@@ -282,7 +287,8 @@ def botsetings(id):
                      triger_lvl=triger_lvl,
                      valuecheck=valuecheck,
                      check_time=check_time,
-                     triger=trigger)
+                     triger=trigger,
+                     total_sum_invest=total_sum_invest)
         return redirect(f'/botsetings/{str(id)}')
     else:
         bo = db.getBot(id)
@@ -298,6 +304,8 @@ def botsetings(id):
             bo['triger_lvl'] = format(float(bo['triger_lvl']), ".8f")
         if len(str(bo['count_hev']).split('e')) > 1:
             bo['count_hev'] = format(float(bo['count_hev']), ".8f")
+        if len(str(bo['total_sum_invest']).split('e')) > 1:
+            bo['total_sum_invest'] = toFixed(bo['total_sum_invest'], 8)
 
         return render_template("botsetings.html", bot=bo)
 
@@ -441,14 +449,14 @@ def worker():
         logging.info(f"Check time {datetime.now()}")
         for bot in bots:
 
-            if bot['next_check'] <= datetime.now() and bot['not_archive']:
+            if bot['next_check'] <= datetime.now() and bot['not_archive'] :
                 db.botNextCheck(bot['_id'])
 
                 price = float(client.get_avg_price(symbol=bot['valute_par'])['price'])
                 logging.info(f"{bot['name']} {bot['_id']} Now price: {price} Bye lvl: {bot['bye_lvl']}")
 
-                if price <= bot['bye_lvl']: # BYE
-                    order = bin_func.Bye(symb=bot['valute_par'],client=client,inv_sum=bot['sum_invest'])
+                if price <= bot['bye_lvl'] and bot["total_sum_invest"]>=hlp.getMinInv_test(bot['valute_par']): # BYE
+                    order = bin_func.Bye(symb=bot['valute_par'],client=client,inv_sum=bot['sum_invest'],balance=bot['total_sum_invest'])
 
                     if order:
                         db.postOperationBye(bye_lvl=price, valute_par=bot['valute_par'], count=float(order["bye"]["count"]), bot_id=bot['_id'],

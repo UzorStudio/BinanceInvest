@@ -6,17 +6,17 @@ client = Client("OW9lwAN9t72TYQylaKmwZqS5H3Leb4BwyzLfFWttgAtusfHLmdwXjYpZYwa4NiP
                 "HqkcS2ETC34T7h5SF0g9R5dyzJcMrm8fMzXotc2oQ2l9uonUSDntVPlrN34wf2o5",
                 testnet=True)
 db = base.Base("localhost")
-print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
-print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
-print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
-print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
-print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
-print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
-print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
-print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
-print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
-print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
-print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
+#print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
+#print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
+#print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
+#print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
+#print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
+#print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
+#print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
+#print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
+#print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
+#print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
+#print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
 
 for b in client.get_account()['balances']:
     if float(b['free']) > 0 :
