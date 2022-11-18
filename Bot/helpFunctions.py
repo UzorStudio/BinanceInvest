@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from binance.client import Client
 import json
 
@@ -13,6 +15,25 @@ try:
 except:
     print("exchange_info open err")
 
+
+def cansle_order(order,client):
+    time_order = datetime.fromtimestamp(int(order['updateTime']) / 1000)
+    print(f"cnsl_time:{time_order + timedelta(hours=1)} time_order:{time_order}")
+    if time_order + timedelta(hours=1) < datetime.now() and order['status'] != 'PARTIALLY_FILLED':
+        try:
+            result = client.cancel_order(
+                symbol=order['symbol'],
+                orderId=order['orderId'])
+            return {"order":order,"res":result,"price":result['price'],"return":result['origQty']*result['price'],"status": "no_filled",'executedQty':result['executedQty']}
+        except:
+            return 0
+    elif time_order + timedelta(hours=1) < datetime.now() and order['status'] == 'PARTIALLY_FILLED':
+        result = client.cancel_order(
+            symbol=order['symbol'],
+            orderId=order['orderId'])
+        return {"order":order,"res": result, "return": (result['origQty']-result['executedQty']) * result['price'],"status": "PARTIALLY_FILLED",'executedQty':result['executedQty']}
+    else:
+        return 0
 
 def numFrontZero(num):
     num = list(str(float(num)).split(".")[1])
@@ -42,7 +63,6 @@ def getminQty_test(symbol):
 
     for i in inf_test['symbols']:
         if i["symbol"] == symbol:
-            print(f"help: {i}")
             for s in i["filters"]:
                 #print(f"help: {s}")
                 if s['filterType'] == 'LOT_SIZE':
@@ -73,8 +93,8 @@ def getMinInv(symbol):
         if i["symbol"] == symbol:
             for s in i["filters"]:
 
-                if s['filterType'] == 'LOT_SIZE':
-                    return float(s['minQty'])
+                if s['filterType'] == 'MIN_NOTIONAL':
+                    return float(s['minNotional'])
 
 
 def update(api_kay,api_secret,test_net_on):

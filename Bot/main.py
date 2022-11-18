@@ -1,5 +1,8 @@
 import logging
 import threading
+
+from requests import ReadTimeout
+
 import helpFunctions as hlp
 from time import sleep
 
@@ -15,10 +18,10 @@ db = base.Base("mongodb://Roooasr:sedsaigUG12IHKJhihsifhaosf@mongodb:27017/")
 #db = base.Base("localhost")
 API_PATH = "conf.txt"
 
-apis = open(API_PATH,"r").readlines()
+apis = open(API_PATH, "r").readlines()
 print(apis)
-client = Client(apis[0].replace("\n",""),
-                apis[1].replace("\n",""),
+client = Client(apis[0].replace("\n", ""),
+                apis[1].replace("\n", ""),
                 testnet=True)
 
 app = Flask(__name__)
@@ -34,6 +37,8 @@ def delSess():
         session.pop("sesid", None)
     except:
         pass
+
+
 def toFixed(numObj, digits=0):
     return f"{numObj:.{digits}f}"
 
@@ -43,7 +48,7 @@ def index():
     if request.method == "POST":
 
         symbol = request.form["symbol"]
-        if symbol !='':
+        if symbol != '':
             bots = db.getBotsBySymbol(symbol)
         else:
             bots = db.getAllBots()
@@ -59,23 +64,23 @@ def index():
         for bot in bots:
             razn = 0
             razn_sell = 0
-            side=''
+            side = ''
             side_sell = ''
             price = float(client.get_avg_price(symbol=bot['valute_par'])['price'])
             if len(str(bot['bye_lvl']).split('e')) > 1:
                 bot['bye_lvl'] = format(float(bot['bye_lvl']), ".8f")
             if len(str(bot['sum_invest']).split('e')) > 1:
-                bot['sum_invest'] =toFixed(bot['sum_invest'],8)
+                bot['sum_invest'] = toFixed(bot['sum_invest'], 8)
             if len(str(bot['sell_lvl']).split('e')) > 1:
                 bot['sell_lvl'] = format(float(bot['sell_lvl']), ".8f")
             if len(str(bot['earned']).split('e')) > 1:
-                bot['earned'] = toFixed(bot['earned'],8)
+                bot['earned'] = toFixed(bot['earned'], 8)
             if len(str(bot['spent']).split('e')) > 1:
-                bot['spent'] = toFixed(bot['spent'],8)
+                bot['spent'] = toFixed(bot['spent'], 8)
             if len(str(bot['cikle_profit']).split('e')) > 1:
-                bot['cikle_profit'] = toFixed(bot['cikle_profit'],8)
+                bot['cikle_profit'] = toFixed(bot['cikle_profit'], 8)
             if len(str(bot['total_profit']).split('e')) > 1:
-                bot['total_profit'] = toFixed(bot['total_profit'],8)
+                bot['total_profit'] = toFixed(bot['total_profit'], 8)
             if len(str(bot['triger_lvl']).split('e')) > 1:
                 bot['triger_lvl'] = format(float(bot['triger_lvl']), ".8f")
             if len(str(bot['count_hev']).split('e')) > 1:
@@ -83,21 +88,23 @@ def index():
             if len(str(price).split('e')) > 1:
                 price = format(float(price), ".9f")
             if bot['bye_lvl'] < price:
-                razn = 100*(1-float(bot['bye_lvl'])/float(price))
-                side='▼'
+                razn = 100 * (1 - float(bot['bye_lvl']) / float(price))
+                side = '▼'
             if bot['bye_lvl'] > price:
-                razn = 100 * (1 - float(price)/float(bot['bye_lvl']))
-                side='▲'
+                razn = 100 * (1 - float(price) / float(bot['bye_lvl']))
+                side = '▲'
             if bot['sell_lvl'] < price:
                 side_sell = '▼'
-                razn_sell = 100*(1-float(bot['sell_lvl'])/float(price))
+                razn_sell = 100 * (1 - float(bot['sell_lvl']) / float(price))
             if bot['sell_lvl'] > price:
                 side_sell = '▲'
-                razn_sell = 100 * (1 - float(price)/float(bot['sell_lvl']))
+                razn_sell = 100 * (1 - float(price) / float(bot['sell_lvl']))
 
-            b.append({"bot": bot, "price": price, "razn": toFixed(razn,2),"side":side,"razn_sell":toFixed(razn_sell,2),'side_sell':side_sell})
+            b.append(
+                {"bot": bot, "price": price, "razn": toFixed(razn, 2), "side": side, "razn_sell": toFixed(razn_sell, 2),
+                 'side_sell': side_sell})
 
-        return render_template("index.html", bo=b, par=db.openSymbol(),balance = balances)
+        return render_template("index.html", bo=b, par=db.openSymbol(), balance=balances)
 
     else:
         bots = db.getAllBots()
@@ -135,19 +142,19 @@ def index():
             if len(str(bot['count_hev']).split('e')) > 1:
                 bot['count_hev'] = format(float(bot['count_hev']), ".8f")
             if len(str(bot['total_sum_invest']).split('e')) > 1:
-                bot['total_sum_invest'] = toFixed(bot['total_sum_invest'],8)
+                bot['total_sum_invest'] = toFixed(bot['total_sum_invest'], 8)
             if len(str(price).split('e')) > 1:
                 price = format(float(price), ".9f")
-            if bot['bye_lvl'] < price:
+            if float(bot['bye_lvl']) < float(price):
                 razn = 100 * (1 - float(bot['bye_lvl']) / float(price))
                 side = '▼'
-            if bot['bye_lvl'] > price:
+            if float(bot['bye_lvl']) > float(price):
                 razn = 100 * (1 - float(price) / float(bot['bye_lvl']))
                 side = '▲'
-            if bot['sell_lvl'] < price:
+            if float(bot['sell_lvl']) < float(price):
                 side_sell = '▼'
                 razn_sell = 100 * (1 - float(bot['sell_lvl']) / float(price))
-            if bot['sell_lvl'] > price:
+            if float(bot['sell_lvl']) > float(price):
                 side_sell = '▲'
                 razn_sell = 100 * (1 - float(price) / float(bot['sell_lvl']))
 
@@ -155,7 +162,7 @@ def index():
                 {"bot": bot, "price": price, "razn": toFixed(razn, 2), "side": side, "razn_sell": toFixed(razn_sell, 2),
                  'side_sell': side_sell})
 
-        return render_template("index.html", bo=b,par=db.openSymbol(),balance = balances)
+        return render_template("index.html", bo=b, par=db.openSymbol(), balance=balances)
 
 
 @app.route("/archive", methods=["POST", "GET"])
@@ -168,9 +175,11 @@ def archive():
         bots = db.getAllBots()
         b = []
         for bot in bots:
-            b.append({"bot":bot,"price":format(float(client.get_avg_price(symbol=bot['valute_par'])['price']),".8f")})
+            b.append(
+                {"bot": bot, "price": format(float(client.get_avg_price(symbol=bot['valute_par'])['price']), ".8f")})
 
         return render_template("archive.html", bo=b)
+
 
 @app.route("/settings", methods=["POST", "GET"])
 def settings():
@@ -178,11 +187,10 @@ def settings():
 
         api_key = request.form["api_key"]
         api_secret = request.form["api_secret"]
-        open(API_PATH,"w").write(f"{api_key}\n{api_secret}\n")
-        api = open(API_PATH,"r").readlines()
-        
+        open(API_PATH, "w").write(f"{api_key}\n{api_secret}\n")
+        api = open(API_PATH, "r").readlines()
 
-        return render_template("settings.html",api=api)
+        return render_template("settings.html", api=api)
 
 
     else:
@@ -191,7 +199,7 @@ def settings():
             print(client.get_account())
         except:
             print("err")
-        return render_template("settings.html",api=api)
+        return render_template("settings.html", api=api)
 
 
 @app.route("/create", methods=["POST", "GET"])
@@ -229,7 +237,7 @@ def create():
     else:
 
         info = client.get_account()['balances']
-        balances=[]
+        balances = []
 
         for i in info:
             if float(i['free']) > 0:
@@ -242,7 +250,8 @@ def create():
             else:
                 tck.append({"minimum": hlp.getMinInv_test(t['symbol']), "par": t})
 
-        return render_template("createbot.html",coin=tck,balance= balances)
+        return render_template("createbot.html", coin=tck, balance=balances)
+
 
 @app.route("/delbot/<string:id>", methods=["POST", "GET"])
 def delbot(id):
@@ -261,6 +270,7 @@ def returnbot(id):
         db.returnBot(id)
         return redirect('/archive')
 
+
 @app.route("/botsetings/<string:id>", methods=["POST", "GET"])
 def botsetings(id):
     if request.method == "POST":
@@ -268,7 +278,7 @@ def botsetings(id):
         trigger = False
 
         sum_invest = request.form["sum_invest"]
-        total_sum_invest = request.form["total_sum_invest"]
+        base_total_sum_invest = request.form["base_total_sum_invest"]
         bye_lvl = request.form["bye_lvl"]
         sell_lvl = request.form["sell_lvl"]
         try:
@@ -288,11 +298,10 @@ def botsetings(id):
                      valuecheck=valuecheck,
                      check_time=check_time,
                      triger=trigger,
-                     total_sum_invest=total_sum_invest)
+                     base_total_sum_invest=base_total_sum_invest)
         return redirect(f'/botsetings/{str(id)}')
     else:
         bo = db.getBot(id)
-
 
         if len(str(bo['bye_lvl']).split('e')) > 1:
             bo['bye_lvl'] = format(float(bo['bye_lvl']), ".8f")
@@ -312,7 +321,6 @@ def botsetings(id):
 
 @app.route("/message", methods=["POST", "GET"])
 def message():
-
     if request.method == "POST":
         dateset = db.openHistDate()
         print(request.form)
@@ -326,7 +334,7 @@ def message():
                     h['lvl'] = format(float(h['lvl']), ".8f")
                     h['count'] = format(float(h['count']), ".8f")
                     hist.append(h)
-                return render_template("message.html", hist=hist,d =dateset)
+                return render_template("message.html", hist=hist, d=dateset)
             if request.form['proc'] != '':
                 proc = request.form["proc"]
                 history = db.getHistByProc(int(proc))
@@ -337,11 +345,11 @@ def message():
                     h['count'] = format(float(h['count']), ".8f")
                     hist.append(h)
 
-                return render_template("message.html", hist=hist ,d =db.openHistByProc(proc))
+                return render_template("message.html", hist=hist, d=db.openHistByProc(proc))
             if request.form['proc'] != '' and request.form['calendar'] != '':
                 proc = request.form["proc"]
                 date = request.form["calendar"]
-                history = db.getHistByProcDay(int(proc),date)
+                history = db.getHistByProcDay(int(proc), date)
                 hist = []
 
                 for h in history:
@@ -349,7 +357,7 @@ def message():
                     h['count'] = format(float(h['count']), ".8f")
                     hist.append(h)
 
-                return render_template("message.html", hist=hist ,d =dateset)
+                return render_template("message.html", hist=hist, d=dateset)
         if 'dataopen' in request.form:
             date = request.form["dataopen"]
             history = db.getHistByDay(date=date)
@@ -373,7 +381,7 @@ def message():
             h['lvl'] = format(float(h['lvl']), ".8f")
             h['count'] = format(float(h['count']), ".8f")
             hist.append(h)
-        return render_template("message.html",hist=hist,d =dateset)
+        return render_template("message.html", hist=hist, d=dateset)
 
 
 @app.route("/message/<string:id>", methods=["POST", "GET"])
@@ -384,7 +392,7 @@ def messagebot(id):
         if 'calendar' in request.form and 'proc' in request.form:
             if request.form['calendar'] != '':
                 date = request.form["calendar"]
-                history = db.getHistByBotIdDate(date=date,id=id)
+                history = db.getHistByBotIdDate(date=date, id=id)
                 hist = []
 
                 for h in history:
@@ -395,7 +403,7 @@ def messagebot(id):
 
             if request.form['proc'] != '':
                 proc = request.form["proc"]
-                history = db.getHistByProcBot(int(proc),id)
+                history = db.getHistByProcBot(int(proc), id)
                 hist = []
 
                 for h in history:
@@ -408,7 +416,7 @@ def messagebot(id):
             if request.form['proc'] != '' and request.form['calendar'] != '':
                 proc = request.form["proc"]
                 date = request.form["calendar"]
-                history = db.getHistByProcDayBot(prof=int(proc), date=date,id=id)
+                history = db.getHistByProcDayBot(prof=int(proc), date=date, id=id)
                 hist = []
 
                 for h in history:
@@ -440,74 +448,107 @@ def messagebot(id):
             h['count'] = format(float(h['count']), ".8f")
             hist.append(h)
 
-        return render_template("message.html", hist=hist,d=date)
+        return render_template("message.html", hist=hist, d=date)
+
+
 def worker():
     print("tr start")
 
     while True:
-        bots  = db.getAllBots()
+        bots = db.getAllBots()
         logging.info(f"Check time {datetime.now()}")
         for bot in bots:
 
-            if bot['next_check'] <= datetime.now() and bot['not_archive'] :
+            if bot['next_check'] <= datetime.now() and bot['not_archive']:
                 db.botNextCheck(bot['_id'])
 
                 price = float(client.get_avg_price(symbol=bot['valute_par'])['price'])
                 logging.info(f"{bot['name']} {bot['_id']} Now price: {price} Bye lvl: {bot['bye_lvl']}")
 
-                if price <= bot['bye_lvl'] and bot["total_sum_invest"]>=hlp.getMinInv_test(bot['valute_par']): # BYE
-                    order = bin_func.Bye(symb=bot['valute_par'],client=client,inv_sum=bot['sum_invest'],balance=bot['total_sum_invest'])
+                if price <= bot['bye_lvl'] and bot["total_sum_invest"] >= hlp.getMinInv_test(
+                        bot['valute_par']) and price not in bot['last_price']:  # BYE
+                    order = bin_func.Bye(symb=bot['valute_par'], client=client, inv_sum=bot['sum_invest'],
+                                         balance=bot['total_sum_invest'])
 
                     if order:
-                        db.postOperationBye(bye_lvl=price, valute_par=bot['valute_par'], count=float(order["bye"]["count"]), bot_id=bot['_id'],
-                                             order=order,spent=float(order["sell"]["count"]))
+                        db.setLastPrice(bot["_id"], price)
+                        db.ByeForBot(bot_id=bot['_id'],
+                                     order=order, spent=float(order["sell"]["count"]))
                     else:
-                        logging.error(f"NONE BALANCE {bot['name']} {bot['_id']} Now price: {price} Bye lvl: {bot['bye_lvl']}")
+                        logging.error(
+                            f"NONE BALANCE {bot['name']} {bot['_id']} Now price: {price} Bye lvl: {bot['bye_lvl']}")
 
-                elif price >= bot['sell_lvl'] and bot['count_hev'] > 0: # SELL
+                elif price >= bot['sell_lvl'] and bot['count_hev'] > 0:  # SELL
 
-                    order = bin_func.Sell(bot['valute_par'],inv_sum=bot['count_hev'],client=client,price=price)
+                    order = bin_func.Sell(bot['valute_par'], inv_sum=bot['count_hev'], client=client)
                     if order and float(order['bye']['count']) > 0:
-                        db.postOperationSell(sell_lvl=price,valute_par=bot['valute_par'],count=order['sell']['count'],bot_id=bot['_id'],order=order)
+                        db.SellForBot(bot_id=bot['_id'], order=order, spent=bot['spent_true'])
 
+                for order_bot in db.getOrdersByeBot(bot['_id']):
+                    order = client.get_order(
+                        symbol=bot['valute_par'],
+                        orderId=str(order_bot))
+                    if order["status"] == 'FILLED' and order["side"] == 'BUY':
+                        db.postOperationBye(bot_id=bot['_id'],
+                                            order=order,
+                                            valute_par=bot['valute_par'],
+                                            count=float(order['executedQty']),
+                                            spent=float(order['cummulativeQuoteQty']),
+                                            bye_lvl=order['price'])
+                    cnsl = hlp.cansle_order(order, client)
+                    if cnsl != 0:
+                        db.returnCountHev(bot["_id"], cnsl)
+                        db.dropLastPriceForPrice(bot["_id"],cnsl["price"])
+                        db.dropOrderId(bot["_id"], cnsl)
 
+                for order_bot in db.getOrdersSellBot(bot['_id']):
+                    order = client.get_order(
+                        symbol=bot['valute_par'],
+                        orderId=str(order_bot['id']))
+                    if order["status"] == 'FILLED' and order["side"] == 'SELL':
+                        db.setTriger(bot["_id"], False)
+                        db.postOperationSell(bot_id=bot['_id'],
+                                             order=order,
+                                             valute_par=bot['valute_par'],
+                                             count=order['cummulativeQuoteQty'],
+                                             sell_lvl=order['price'],
+                                             spent=order_bot['spents'])
+                        print(f"sell in paarsers {bot['_id']}")
+                        db.dropLastPrice(bot["_id"])
+                    cnsl = hlp.cansle_order(order, client)
+                    if cnsl != 0:
+                        print(f"cnsl: {bot['_id']} ")
+                        db.returnCountHev(bot["_id"], cnsl)
+                        db.dropLastPriceForPrice(bot["_id"],cnsl["price"])
+                        db.dropOrderId(bot["_id"], cnsl)
 
-                if price >= bot['triger_lvl'] and bot["order"] == False:
-
-                    order = bin_func.BuyOrder(symb=bot['valute_par'],
-                                      inv_sum=bot['sum_invest'],
-                                      priceb=bot['bye_lvl'],
-                                      client=client)
+                if price >= bot['triger_lvl'] and bot["order"] == False and bot[
+                    "total_sum_invest"] >= hlp.getMinInv_test(bot['valute_par']) and price not in bot['last_price']:
+                    order = bin_func.BuyOrder(symb=bot['valute_par'], client=client, inv_sum=bot['sum_invest'],
+                                              balance=bot['total_sum_invest'], price=bot["bye_lvl"])
 
                     if order:
-                        db.postOperationOrgerBy(bye_lvl=bot['bye_lvl'],valute_par=bot['valute_par'],count=bot['sum_invest'],bot_id=bot['_id'],orger_id=order['order']['orderId'],orger=order)
-                d = db.getOrderId(bot["_id"])
-                if d !=0:
-                    try:
-                        if bin_func.check_order(symb=bot['valute_par'],client=client,ordId=d["order"]["orderId"])['status'] == "FILLED":
-                            db.postOperationBye(bye_lvl=price, valute_par=bot['valute_par'], count=d["bye"]["count"],
-                                                bot_id=bot['_id'],
-                                                order=d, spent=d["bye"]["count"])
-                            db.setOrder(bot["_id"],False,0)
-                    except TypeError:
-                        pass
+                        db.setLastPrice(bot["_id"], price)
+                        db.setTriger(bot["_id"],True)
+                        db.ByeForBot(bot_id=bot['_id'],
+                                     order=order, spent=float(order["sell"]["count"]))
+
         sleep(30)
 
 
 def start():
-
-    if threading.enumerate():
-        tr = Thread(target=worker, args=(), name="test")
-        tr.start()
-    else:
-        print(f"tr err thr count:{len(threading.enumerate())}")
-
-
+    try:
+        if threading.enumerate():
+            tr = Thread(target=worker, args=(), name="test")
+            tr.start()
+        else:
+            print(f"tr err thr count:{len(threading.enumerate())}")
+    except ReadTimeout as e:
+        print(f"ReadTimeout {e.args}")
+        sleep(15)
+        start()
 
 
 if __name__ == "__main__":
-
     start()
     app.run(debug=False, host="0.0.0.0", port=5000)
-
-

@@ -7,6 +7,9 @@ from datetime import datetime
 from datetime import timedelta
 
 
+def toFixed(numObj, digits=0):
+    return f"{numObj:.{digits}f}"
+
 class Base:
     def __init__(self, classterMongo):
         self.classterMongo = classterMongo
@@ -48,10 +51,11 @@ class Base:
             'check_time': int(check_time),
             'next_check': datetime.now(),
             'order': False,
+            'orders_bye': [],
+            'orders_sell': [],
             "count_hev": 0,  # записывать количество
-            'last_bye': "",  # Записывать id последней покупки
-            'first_bye': "",  # Записывать id первой покупки
             'spent':0,
+            'spent_true':0,
             "order_id":0,
             'not_archive': True,
             'triger': triger,
@@ -60,7 +64,8 @@ class Base:
             "cikle_count":0,
             "base_sum_invest":float(sum_invest),
             "base_total_sum_invest":float(total_sum_invest),
-            "earned": 0
+            "earned": 0,
+            "last_price":[]
         }
 
         return Bots.insert_one(post).inserted_id
@@ -77,7 +82,15 @@ class Base:
 
         Bots.update_one({"_id": ObjectId(id)}, {"$set": {'not_archive': True}})
 
-    def reloadBot(self, id, sum_invest, bye_lvl,total_sum_invest, sell_lvl, triger_lvl, valuecheck, check_time, triger):
+    def returnCountHev(self,bot_id,ret):
+        db = self.classter["BinanceInvest"]
+        Bots = db["Bots"]
+        if ret['status'] == 'PARTIALLY_FILLED':
+            Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc": {'count_hev': +ret['executedQty'],'total_sum_invest': +ret['return']}})
+        else:
+            Bots.update_one({"_id":ObjectId(bot_id)},{"$inc":{'total_sum_invest':+ret['return']}})
+
+    def reloadBot(self, id, sum_invest, bye_lvl,base_total_sum_invest, sell_lvl, triger_lvl, valuecheck, check_time, triger):
         db = self.classter["BinanceInvest"]
         Bots = db["Bots"]
 
@@ -103,10 +116,8 @@ class Base:
             'next_check': next_check,
             'order': Bots.find_one({"_id": ObjectId(id)})['order'],
             "count_hev": Bots.find_one({"_id": ObjectId(id)})['count_hev'],  # записывать количество
-            'last_bye': Bots.find_one({"_id": ObjectId(id)})['last_bye'],  # Записывать id последней покупки
-            'first_bye': Bots.find_one({"_id": ObjectId(id)})['first_bye'],  # Записывать id первой покупки
             'not_archive': Bots.find_one({"_id": ObjectId(id)})['not_archive'],
-            'total_sum_invest': float(total_sum_invest),
+            'base_total_sum_invest': float(base_total_sum_invest),
             'triger': triger,
         }
 
@@ -130,6 +141,32 @@ class Base:
 
         return Bots.find({"valute_par":symbol})
 
+    def setLastPrice(self,bot_id,price):
+        db = self.classter["BinanceInvest"]
+        Bots = db["Bots"]
+        print(f"last_price: {price} bot: {bot_id}")
+
+        Bots.update_one({"_id": ObjectId(bot_id)},{"$push":{"last_price":price}})
+
+    def dropLastPrice(self,bot_id):
+        db = self.classter["BinanceInvest"]
+        Bots = db["Bots"]
+
+        Bots.update_one({"_id": ObjectId(bot_id)},{"$set":{"last_price":[]}})
+
+    def dropLastPriceForPrice(self,bot_id,price):
+        db = self.classter["BinanceInvest"]
+        Bots = db["Bots"]
+        prices = Bots.find_one({"_id": ObjectId(bot_id)})['last_price']
+        for pr in prices:
+            if price == pr:
+                prices.remove(pr)
+                Bots.find_one({"_id": ObjectId(bot_id)},{"$set":{"last_price":prices}})
+
+    def setTriger(self,bot_id,triger):
+        db = self.classter["BinanceInvest"]
+        Bots = db["Bots"]
+        Bots.update_one({"_id": ObjectId(bot_id)},{"$set":{"order":triger}})
     def openSymbol(self):
         db = self.classter["BinanceInvest"]
         Bots = db["Bots"]
@@ -145,13 +182,48 @@ class Base:
         return symbol
 
 
+    def ByeForBot(self, bot_id,order,spent):
+        db = self.classter["BinanceInvest"]
+        Bots = db["Bots"]
+
+        Bots.update_one({"_id": bot_id}, {"$inc": {"spent": +spent,
+                                                   'total_sum_invest': -spent
+                                                   }})
+        Bots.update_one({"_id": bot_id}, {"$push":{"orders_bye":order['order']['orderId']}})
+
+
+    def SellForBot(self, bot_id, order,spent):
+        db = self.classter["BinanceInvest"]
+        Bots = db["Bots"]
+
+
+        Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc": {"count_hev": -float(order['sell']['count'])}})
+        Bots.update_one({"_id": ObjectId(bot_id)}, {"$push": {"orders_sell":{"id":order['order']['orderId'],"spents":spent}}})
+
+    def dropOrderId(self,bot_id,res):
+        db = self.classter["BinanceInvest"]
+        Bots = db["Bots"]
+        bot = Bots.find_one({"_id": ObjectId(bot_id)})
+        orders_sell = bot['orders_sell']
+        orders_bye = bot['orders_bye']
+        if res['order']['side'] == 'BUY':
+            for o in orders_bye:
+                if o['id'] == res['order']['orderId']:
+                    orders_bye.remove(o)
+                    Bots.update_one({"_id": ObjectId(bot_id)}, {"$set":{'orders_bye':orders_bye}})
+
+        if res['order']['side'] == 'SELL':
+            for o['orderId'] in orders_sell:
+                if o['id'] == res['order']['orderId']:
+                    orders_sell.remove(o)
+                    Bots.update_one({"_id": ObjectId(bot_id)}, {"$set":{'orders_sell':orders_sell}})
 
 
     def postOperationBye(self, bot_id, bye_lvl, valute_par, count,order,spent):
         db = self.classter["BinanceInvest"]
         Hist = db["Hist"]
         Bots = db["Bots"]
-
+        bot = Bots.find_one({"_id": ObjectId(bot_id)})
         post = {
             "lvl": bye_lvl,
             "valute_par": valute_par,
@@ -163,28 +235,37 @@ class Base:
             "order":order,
             "spent":spent
         }
-
-        Bots.update_one({"_id": bot_id}, {"$inc": {"count_hev": +count,
-                                                   "spent": +spent,
-                                                   'total_sum_invest':-spent
-                                                   }})
+        for o in bot['orders_bye']:
+            if o == order['orderId']:
+                ord = bot['orders_bye']
+                ord.remove(o)
+                Bots.update_one({"_id": ObjectId(bot_id)}, {"$set":{'orders_bye':ord}})
+        Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc":{"count_hev": +count}})
+        Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc":{"spent_true": +spent}})
         Hist.insert_one(post)
 
-    def postOperationSell(self, bot_id, sell_lvl, valute_par, count, order):
+
+
+
+    def postOperationSell(self, bot_id, sell_lvl, valute_par, count, order,spent):
         db = self.classter["BinanceInvest"]
         Hist = db["Hist"]
         Bots = db["Bots"]
         bot = Bots.find_one({"_id": ObjectId(bot_id)})
 
-        spent = bot['spent']
-        spent_percent = float(spent)/100
-        print(f"{spent} {count}")
-        count_percent = float(count)/spent_percent
-        profit = 100-count_percent
+        profit = (1-(spent/float(count)))*100
 
-        total_percent = (1-(bot['base_sum_invest']/(bot['sum_invest'] * (profit / 100))))*100
+        total_percent = (1-(bot['base_sum_invest']/(bot['sum_invest']+(bot['sum_invest'] * (profit / 100)))))*100
+        print("sell: _____________start")
+        print(bot)
+        print(order)
+        print(f"profit {profit} total_profit {total_percent}")
+        print(f"spent {spent} count {count}")
+        print(f"erned: {(float(count) - float(spent))}")
+        print(f"New sum_invest: {bot['sum_invest']+(bot['sum_invest'] * (profit / 100))}")
+        print(f"New Total_sum_invest: {bot['base_total_sum_invest']+bot['base_total_sum_invest']* (profit / 100)}")
+        print("sell: _____________end")
 
-        print(profit)
         post = {
             "lvl": sell_lvl,
             "valute_par": valute_par,
@@ -194,18 +275,25 @@ class Base:
             "profit": profit,
             "bot_id": bot_id,
             "order":order,
-            "spent":order['bye']['count']
+            "spent":order['executedQty']
         }
+        ord = bot['orders_sell']
+        for o in bot['orders_sell']:
+            if o['id'] == order['orderId']:
+                print(f"1o: {o}, ord: {ord}")
+                ord.remove(o) # работает
+                print(f"1o: {o}, ord: {ord}")
+                Bots.update_one({"_id": ObjectId(bot_id)}, {"$set":{'orders_sell':ord}})
 
-        Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc": {"count_hev": -float(order['bye']['count']),
-                                                             "spent": -float(spent),
-                                                             "sum_invest": +(bot['sum_invest'] * (profit / 100)),
-                                                             "total_profit": +total_percent,
-                                                             "earned": +(float(count) - spent),
+        Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc": {"sum_invest": +(bot['sum_invest'] * (profit / 100)),
+                                                             "earned": +float(toFixed((float(count) - float(spent)),8)),
                                                              "cikle_count": +1
                                                              }})
         Bots.update_one({"_id": ObjectId(bot_id)}, {"$set": {"cikle_profit": profit,
-                                                             'total_sum_invest':bot['base_total_sum_invest']+bot['base_total_sum_invest']* (profit / 100)
+                                                             "spent": bot['spent']-float(spent),
+                                                             "spent_true": bot['spent_true']-float(spent),
+                                                             "total_profit": total_percent,
+                                                             'total_sum_invest':bot['base_total_sum_invest']+(bot['base_total_sum_invest']* (profit / 100))
                                                              }})
         Hist.insert_one(post)
 
@@ -237,15 +325,20 @@ class Base:
         Bots.update_one({"_id": bot_id}, {"$set": {"order": status}})
 
 
-    def getOrderId(self,bot_id):
+    def getOrdersSellBot(self,bot_id):
         db = self.classter["BinanceInvest"]
         Bots = db["Bots"]
-        Hist = db["Hist"]
 
-        try:
-            return Hist.find_one({"order":{"orderId":Bots.find_one({"_id":ObjectId(bot_id)})['order_id']}})
-        except:
-            return 0
+
+        return Bots.find_one({"_id":ObjectId(bot_id)})['orders_sell']
+
+
+    def getOrdersByeBot(self,bot_id):
+        db = self.classter["BinanceInvest"]
+        Bots = db["Bots"]
+
+
+        return Bots.find_one({"_id":ObjectId(bot_id)})['orders_bye']
 
     def addCountHevOnOrder(self,bot_id,count):
         db = self.classter["BinanceInvest"]

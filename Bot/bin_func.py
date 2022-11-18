@@ -2,6 +2,9 @@ from binance.client import Client
 import helpFunctions as hlp
 import logging
 
+def toFixed(numObj, digits=0):
+    return f"{numObj:.{digits}f}"
+
 def Bye(symb,inv_sum,client,balance):
     h = hlp.getminQty_test(symb)
     minInv =hlp.getMinInv_test(symb)
@@ -10,13 +13,11 @@ def Bye(symb,inv_sum,client,balance):
 
 
     cn = float(format(inv_sum / float(price), f".{h['lot_size'] + 1}f"))
-    print(f"cn1: {cn}")
     mx = hlp.market_lot_size_test(symb)["maxQty"]
-    print(f"mx {mx}")
     if cn > mx:
         cn = int(mx)
 
-    if balance < minInv:
+    if balance < minInv and inv_sum < minInv:
         return False
 
     s = hlp.split_symbol_test(symb)
@@ -27,43 +28,40 @@ def Bye(symb,inv_sum,client,balance):
 
 
     if float(balance) >= inv_sum:
-        print(f"cn2: {cn} lot_size: {h}")
         c = hlp.numFrontZero(cn)
-        print(f"c: {c}")
         if c['count'] == 1 and c['count'] < 5:
             cn = int(cn)
             print(f"cn3:{cn}")
-        order = client.order_market_buy(
+        order = client.order_limit_buy(
             symbol=symb,
-            quantity=cn
+            quantity=cn,
+            price=toFixed(float(price),8)
         )
-        re = ({"bye": {"baseAsset": sy['baseAsset'], "count": order['executedQty']},
-                 "sell": {"quoteAsset":sy['quoteAsset'], "count":order['cummulativeQuoteQty']},
+        re = ({"bye": {"baseAsset": sy['baseAsset'], "count": order['origQty']},
+                 "sell": {"quoteAsset":sy['quoteAsset'], "count":float(order['price'])*float(order['origQty'])},
                  "order":order})
         print(f"cn: {cn} bye:{re}")
         return re
 
-def Sell(symb,inv_sum,price,client):
-    if price <= float(client.get_avg_price(symbol=symb)["price"]):
-        h = hlp.getminQty_test(symb)
-        sy = hlp.split_symbol_test(symb)
-        cn = float(format(inv_sum, f".{h['lot_size'] + 1}f"))
-        mx = hlp.market_lot_size_test(symb)["maxQty"]
-        if cn > mx:
-            cn = int(mx)
-        print(f"cn sell: cn")
-
-        order = client.order_market_sell(
-            symbol=symb,
-            quantity=cn
-        )
-        re = ({"sell":{"quoteAsset":sy['quoteAsset'], "count":order['cummulativeQuoteQty']},
-                  "bye":{"baseAsset": sy['baseAsset'], "count": order['executedQty']},
-                  "order":order})
-        print(f"cn: {cn} sell:{re}")
-        return re
-    else:
-        return False
+def Sell(symb,inv_sum,client):
+    price = client.get_avg_price(symbol=symb)['price']
+    h = hlp.getminQty_test(symb)
+    sy = hlp.split_symbol_test(symb)
+    cn = float(format(inv_sum, f".{h['lot_size'] + 1}f"))
+    mx = hlp.market_lot_size_test(symb)["maxQty"]
+    if cn > mx:
+        cn = int(mx)
+    print(f"cn sell: {cn}")
+    order = client.order_limit_sell(
+        symbol=symb,
+        quantity=cn,
+        price=toFixed(float(price),8)
+    )
+    re = ({"sell":{"quoteAsset":sy['baseAsset'], "count":order['origQty']},
+              "bye":{"baseAsset": sy['quoteAsset'], "count": float(order['price'])*float(order['origQty'])},
+              "order":order})
+    print(f"cn: {cn} sell:{re}")
+    return re
 
 def getOrder(type,symb,client):
     orders = []
@@ -80,33 +78,40 @@ def check_order(symb,ordId,client):
     return result
 
 
-def BuyOrder(symb,inv_sum,priceb,client):
-    print(symb)
+def BuyOrder(symb,inv_sum,balance,price,client):
     h = hlp.getminQty_test(symb)
+    minInv = hlp.getMinInv_test(symb)
     sy = hlp.split_symbol_test(symb)
-    price = client.get_avg_price(symbol=symb)["price"]
-    cn = float(format(inv_sum / float(price), f".{h['lot_size'] + 1}f"))
-    print(cn)
-    logging.info(f"Order Bye: {priceb} {sy['baseAsset']}")
-    for b in client.get_account()['balances']:
-        if b['asset'] == sy["quoteAsset"] and float(b['free']) <= inv_sum:
-            cn= float(format(float(b['free']), f".{h['lot_size'] + 1}f"))
-            print(f"cn1 non balance: {cn}")
 
-    for b in client.get_account()['balances']:
-        if b['asset'] == sy['quoteAsset'] and float(b['free']) < inv_sum:
-            return False
-        elif b['asset'] == sy['quoteAsset'] and float(b['free']) >= inv_sum:
-            order = client.order_limit_buy(
-                symbol=symb,
-                quantity=cn,
-                price= '{:0.0{}f}'.format(priceb, 8)
-            )
-            re = ({"bye": {"baseAsset": sy['baseAsset'], "count": order['origQty']},
-                     "sell": {"quoteAsset": sy['quoteAsset'], "count": order['cummulativeQuoteQty']},
-                     "order": order})
-            print(re)
-            return re
+    cn = float(format(inv_sum / float(price), f".{h['lot_size'] + 1}f"))
+    mx = hlp.market_lot_size_test(symb)["maxQty"]
+    if cn > mx:
+        cn = int(mx)
+
+    if balance < minInv and inv_sum < minInv:
+        return False
+
+    s = hlp.split_symbol_test(symb)
+    logging.info(f"Bye: Inv Sum:{inv_sum} Bye Sum:{cn} {s['baseAsset']}")
+    if float(balance) < inv_sum:
+        cn = float(format(float(balance), f".{h['lot_size'] + 1}f"))
+        print(f"cn1 non balance: {cn}")
+
+    if float(balance) >= inv_sum:
+        c = hlp.numFrontZero(cn)
+        if c['count'] == 1 and c['count'] < 5:
+            cn = int(cn)
+            print(f"cn3:{cn}")
+        order = client.order_limit_buy(
+            symbol=symb,
+            quantity=cn,
+            price=toFixed(float(price), 8)
+        )
+        re = ({"bye": {"baseAsset": sy['baseAsset'], "count": order['origQty']},
+               "sell": {"quoteAsset": sy['quoteAsset'], "count": float(order['price']) * float(order['origQty'])},
+               "order": order})
+        print(f"byeOrder: {re}")
+        return re
 
 
 #print(ByOrder(symb='XRPBTC',inv_sum=0.1,client=client,priceb=0.00002375))
