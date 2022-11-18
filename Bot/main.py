@@ -522,7 +522,7 @@ def worker():
                         db.dropLastPriceForPrice(bot["_id"],cnsl["price"])
                         db.dropOrderId(bot["_id"], cnsl)
 
-                if price >= bot['triger_lvl'] and bot["order"] == False and bot[
+                if price <= bot['triger_lvl'] and bot["order"] == False and bot[
                     "total_sum_invest"] >= hlp.getMinInv_test(bot['valute_par']) and price not in bot['last_price']:
                     order = bin_func.BuyOrder(symb=bot['valute_par'], client=client, inv_sum=bot['sum_invest'],
                                               balance=bot['total_sum_invest'], price=bot["bye_lvl"])
