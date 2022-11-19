@@ -13,9 +13,11 @@ def Bye(symb,inv_sum,client,balance):
 
 
     cn = float(format(inv_sum / float(price), f".{h['lot_size'] + 1}f"))
-    mx = hlp.market_lot_size_test(symb)["maxQty"]
-    if cn > mx:
-        cn = int(mx)
+    mx = hlp.market_lot_size_test(symb)
+    if cn > mx["maxQty"]:
+        cn = float(mx["maxQty"])
+    elif cn < minInv:
+        cn = float(minInv)
 
     if balance < minInv and inv_sum < minInv:
         return False
