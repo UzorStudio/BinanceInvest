@@ -32,6 +32,7 @@ def Bye(symb,inv_sum,client,balance):
         if c['count'] == 1 and c['count'] < 5:
             cn = int(cn)
             print(f"cn3:{cn}")
+        print(f"cn_final: {cn} symb:{symb} price: {price}")
         order = client.order_limit_buy(
             symbol=symb,
             quantity=cn,
@@ -52,6 +53,7 @@ def Sell(symb,inv_sum,client):
     if cn > mx:
         cn = int(mx)
     print(f"cn sell: {cn}")
+    print(f"cn_final: {cn} symb:{symb} price: {price}")
     order = client.order_limit_sell(
         symbol=symb,
         quantity=cn,

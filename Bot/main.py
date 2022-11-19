@@ -451,6 +451,45 @@ def messagebot(id):
         return render_template("message.html", hist=hist, d=date)
 
 
+def checkOrers(bot):
+    for order_bot in db.getOrdersByeBot(bot['_id']):
+        order = client.get_order(
+            symbol=bot['valute_par'],
+            orderId=str(order_bot))
+        if order["status"] == 'FILLED' and order["side"] == 'BUY':
+            db.postOperationBye(bot_id=bot['_id'],
+                                order=order,
+                                valute_par=bot['valute_par'],
+                                count=float(order['executedQty']),
+                                spent=float(order['cummulativeQuoteQty']),
+                                bye_lvl=order['price'])
+        cnsl = hlp.cansle_order(order, client)
+        if cnsl != 0:
+            db.returnCountHev(bot["_id"], cnsl)
+            db.dropLastPriceForPrice(bot["_id"], cnsl["price"])
+            db.dropOrderId(bot["_id"], cnsl)
+
+    for order_bot in db.getOrdersSellBot(bot['_id']):
+        order = client.get_order(
+            symbol=bot['valute_par'],
+            orderId=str(order_bot['id']))
+        if order["status"] == 'FILLED' and order["side"] == 'SELL':
+            db.setTriger(bot["_id"], False)
+            db.postOperationSell(bot_id=bot['_id'],
+                                 order=order,
+                                 valute_par=bot['valute_par'],
+                                 count=order['cummulativeQuoteQty'],
+                                 sell_lvl=order['price'],
+                                 spent=order_bot['spents'])
+            print(f"sell in paarsers {bot['_id']}")
+            db.dropLastPrice(bot["_id"])
+        cnsl = hlp.cansle_order(order, client)
+        if cnsl != 0:
+            print(f"cnsl: {bot['_id']} ")
+            db.returnCountHev(bot["_id"], cnsl)
+            db.dropLastPriceForPrice(bot["_id"], cnsl["price"])
+            db.dropOrderId(bot["_id"], cnsl)
+
 def worker():
     print("tr start")
 
@@ -461,6 +500,7 @@ def worker():
 
             if bot['next_check'] <= datetime.now() and bot['not_archive']:
                 db.botNextCheck(bot['_id'])
+                checkOrers(bot)
 
                 price = float(client.get_avg_price(symbol=bot['valute_par'])['price'])
                 logging.info(f"{bot['name']} {bot['_id']} Now price: {price} Bye lvl: {bot['bye_lvl']}")
@@ -484,43 +524,7 @@ def worker():
                     if order and float(order['bye']['count']) > 0:
                         db.SellForBot(bot_id=bot['_id'], order=order, spent=bot['spent_true'])
 
-                for order_bot in db.getOrdersByeBot(bot['_id']):
-                    order = client.get_order(
-                        symbol=bot['valute_par'],
-                        orderId=str(order_bot))
-                    if order["status"] == 'FILLED' and order["side"] == 'BUY':
-                        db.postOperationBye(bot_id=bot['_id'],
-                                            order=order,
-                                            valute_par=bot['valute_par'],
-                                            count=float(order['executedQty']),
-                                            spent=float(order['cummulativeQuoteQty']),
-                                            bye_lvl=order['price'])
-                    cnsl = hlp.cansle_order(order, client)
-                    if cnsl != 0:
-                        db.returnCountHev(bot["_id"], cnsl)
-                        db.dropLastPriceForPrice(bot["_id"],cnsl["price"])
-                        db.dropOrderId(bot["_id"], cnsl)
 
-                for order_bot in db.getOrdersSellBot(bot['_id']):
-                    order = client.get_order(
-                        symbol=bot['valute_par'],
-                        orderId=str(order_bot['id']))
-                    if order["status"] == 'FILLED' and order["side"] == 'SELL':
-                        db.setTriger(bot["_id"], False)
-                        db.postOperationSell(bot_id=bot['_id'],
-                                             order=order,
-                                             valute_par=bot['valute_par'],
-                                             count=order['cummulativeQuoteQty'],
-                                             sell_lvl=order['price'],
-                                             spent=order_bot['spents'])
-                        print(f"sell in paarsers {bot['_id']}")
-                        db.dropLastPrice(bot["_id"])
-                    cnsl = hlp.cansle_order(order, client)
-                    if cnsl != 0:
-                        print(f"cnsl: {bot['_id']} ")
-                        db.returnCountHev(bot["_id"], cnsl)
-                        db.dropLastPriceForPrice(bot["_id"],cnsl["price"])
-                        db.dropOrderId(bot["_id"], cnsl)
 
                 if price <= bot['triger_lvl'] and bot["order"] == False and bot[
                     "total_sum_invest"] >= hlp.getMinInv_test(bot['valute_par']) and price not in bot['last_price']:
@@ -532,6 +536,7 @@ def worker():
                         db.setTriger(bot["_id"],True)
                         db.ByeForBot(bot_id=bot['_id'],
                                      order=order, spent=float(order["sell"]["count"]))
+                checkOrers(bot)
 
         sleep(30)
 
