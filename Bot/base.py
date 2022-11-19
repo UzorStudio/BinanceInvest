@@ -196,9 +196,13 @@ class Base:
         db = self.classter["BinanceInvest"]
         Bots = db["Bots"]
 
-
-        Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc": {"count_hev": -float(order['sell']['count'])}})
-        Bots.update_one({"_id": ObjectId(bot_id)}, {"$push": {"orders_sell":{"id":order['order']['orderId'],"spents":spent}}})
+        if order['sell']['count'] != spent:
+            Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc": {"count_hev": -float(order['sell']['count'])}})
+            Bots.update_one({"_id": ObjectId(bot_id)},
+                            {"$push": {"orders_sell": {"id": order['order']['orderId'], "spents": float(order['sell']['count'])}}})
+        else:
+            Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc": {"count_hev": -float(order['sell']['count'])}})
+            Bots.update_one({"_id": ObjectId(bot_id)}, {"$push": {"orders_sell":{"id":order['order']['orderId'],"spents":spent}}})
 
     def dropOrderId(self,bot_id,res):
         db = self.classter["BinanceInvest"]
