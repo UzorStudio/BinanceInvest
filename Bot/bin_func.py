@@ -38,7 +38,7 @@ def Bye(symb,inv_sum,client,balance):
         order = client.order_limit_buy(
             symbol=symb,
             quantity=cn,
-            price=toFixed(float(price),8)
+            price=toFixed(float(price),hlp.price_filter_zero_frotn_num(symb))
         )
         re = ({"bye": {"baseAsset": sy['baseAsset'], "count": order['origQty']},
                  "sell": {"quoteAsset":sy['quoteAsset'], "count":float(order['price'])*float(order['origQty'])},
@@ -59,7 +59,7 @@ def Sell(symb,inv_sum,client):
     order = client.order_limit_sell(
         symbol=symb,
         quantity=cn,
-        price=toFixed(float(price),8)
+        price=toFixed(float(price),hlp.price_filter_zero_frotn_num(symb))
     )
     re = ({"sell":{"quoteAsset":sy['baseAsset'], "count":order['origQty']},
               "bye":{"baseAsset": sy['quoteAsset'], "count": float(order['price'])*float(order['origQty'])},
@@ -109,7 +109,7 @@ def BuyOrder(symb,inv_sum,balance,price,client):
         order = client.order_limit_buy(
             symbol=symb,
             quantity=cn,
-            price=toFixed(float(price), 8)
+            price=toFixed(float(price),hlp.price_filter_zero_frotn_num(symb))
         )
         re = ({"bye": {"baseAsset": sy['baseAsset'], "count": order['origQty']},
                "sell": {"quoteAsset": sy['quoteAsset'], "count": float(order['price']) * float(order['origQty'])},
