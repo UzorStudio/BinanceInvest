@@ -85,6 +85,7 @@ class Base:
     def returnCountHev(self,bot_id,ret):
         db = self.classter["BinanceInvest"]
         Bots = db["Bots"]
+        print(f"bot:{bot_id} ret: {ret}")
         if ret['status'] == 'PARTIALLY_FILLED':
             Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc": {'count_hev': +ret['executedQty'],'total_sum_invest': +ret['return']}})
         else:
