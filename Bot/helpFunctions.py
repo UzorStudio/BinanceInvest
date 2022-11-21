@@ -60,6 +60,9 @@ def split_symbol_test(symbol):
         if i["symbol"] == symbol:
             return {'baseAsset':i['baseAsset'],'quoteAsset':i['quoteAsset']}
 
+def toFixed(numObj, digits=0):
+    return f"{numObj:.{digits}f}"
+
 def price_filter_zero_frotn_num(symbol):
     for i in inf_test['symbols']:
         if i["symbol"] == symbol:
@@ -67,7 +70,7 @@ def price_filter_zero_frotn_num(symbol):
                 # print(f"help: {s}")
                 if s['filterType'] == 'PRICE_FILTER':
                     return int(len(list(s['minPrice'].split("1")[0].replace("0.",""))))
-print(price_filter_zero_frotn_num("TRXUSDT"))
+
 def split_symbol(symbol):
     for i in inf['symbols']:
         if i["symbol"] == symbol:

@@ -37,7 +37,7 @@ def Bye(symb,inv_sum,client,balance,price):
         order = client.order_limit_buy(
             symbol=symb,
             quantity=cn,
-            price=toFixed(float(price),hlp.price_filter_zero_frotn_num(symb))
+            price=toFixed(float(price),hlp.price_filter_zero_frotn_num(symb)+1)
         )
         re = ({"bye": {"baseAsset": sy['baseAsset'], "count": order['origQty']},
                  "sell": {"quoteAsset":sy['quoteAsset'], "count":float(order['price'])*float(order['origQty'])},
