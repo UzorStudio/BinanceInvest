@@ -467,6 +467,7 @@ def checkOrers(bot,price):
         if cnsl != 0:
             print(f"cnsl: {bot['_id']} ")
             print(f"cnsl status: {cnsl}")
+            db.setTriger(bot["_id"], False)
             db.returnCountHev(bot["_id"], cnsl)
             db.dropLastPriceForPrice(bot["_id"], cnsl["price"])
             db.dropOrderId(bot["_id"], cnsl)
@@ -496,10 +497,9 @@ def worker():
 
             if bot['next_check'] <= datetime.now() and bot['not_archive']:
                 db.botNextCheck(bot['_id'])
-                checkOrers(bot,price)
-
                 price = float(client.get_avg_price(symbol=bot['valute_par'])['price'])
                 logging.info(f"{bot['name']} {bot['_id']} Now price: {price} Bye lvl: {bot['bye_lvl']}")
+                checkOrers(bot, price)
 
                 if price <= bot['bye_lvl'] and bot["total_sum_invest"] >= hlp.getMinInv_test(
                         bot['valute_par']) and price not in bot['last_price']:  # BYE
