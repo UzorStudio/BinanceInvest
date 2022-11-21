@@ -5,11 +5,10 @@ import logging
 def toFixed(numObj, digits=0):
     return f"{numObj:.{digits}f}"
 
-def Bye(symb,inv_sum,client,balance):
+def Bye(symb,inv_sum,client,balance,price):
     h = hlp.getminQty_test(symb)
     minInv =hlp.getMinInv_test(symb)
     sy = hlp.split_symbol_test(symb)
-    price = client.get_avg_price(symbol=symb)["price"]
 
 
     cn = float(format(inv_sum / float(price), f".{h['lot_size'] + 1}f"))
@@ -46,8 +45,7 @@ def Bye(symb,inv_sum,client,balance):
         print(f"cn: {cn} bye:{re}")
         return re
 
-def Sell(symb,inv_sum,client):
-    price = client.get_avg_price(symbol=symb)['price']
+def Sell(symb,inv_sum,client,price):
     h = hlp.getminQty_test(symb)
     sy = hlp.split_symbol_test(symb)
     cn = float(format(inv_sum, f".{h['lot_size'] + 1}f"))

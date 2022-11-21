@@ -196,10 +196,10 @@ class Base:
         db = self.classter["BinanceInvest"]
         Bots = db["Bots"]
 
-        if order['sell']['count'] != spent:
+        if order['bye']['count'] != spent:
             Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc": {"count_hev": -float(order['sell']['count'])}})
             Bots.update_one({"_id": ObjectId(bot_id)},
-                            {"$push": {"orders_sell": {"id": order['order']['orderId'], "spents": float(order['sell']['count'])}}})
+                            {"$push": {"orders_sell": {"id": order['order']['orderId'], "spents": float(order['bye']['count'])}}})
         else:
             Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc": {"count_hev": -float(order['sell']['count'])}})
             Bots.update_one({"_id": ObjectId(bot_id)}, {"$push": {"orders_sell":{"id":order['order']['orderId'],"spents":spent}}})
@@ -217,7 +217,7 @@ class Base:
                     Bots.update_one({"_id": ObjectId(bot_id)}, {"$set":{'orders_bye':orders_bye}})
 
         if res['order']['side'] == 'SELL':
-            for o['orderId'] in orders_sell:
+            for o in orders_sell:
                 if o['id'] == res['order']['orderId']:
                     orders_sell.remove(o)
                     Bots.update_one({"_id": ObjectId(bot_id)}, {"$set":{'orders_sell':orders_sell}})

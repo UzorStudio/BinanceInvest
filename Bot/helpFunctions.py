@@ -4,7 +4,7 @@ from binance.client import Client
 import json
 
 try:
-    with open('exchange_info_test.json') as json_file:
+    with open('Bot/exchange_info_test.json') as json_file:
         inf_test = json.load(json_file)
 except Exception as e:
     print(f"exchange_info_test open err: {e.args}")
@@ -16,24 +16,29 @@ except:
     print("exchange_info open err")
 
 
-def cansle_order(order,client):
+def cansle_order(order,client, trigger,price):
     time_order = datetime.fromtimestamp(int(order['updateTime']) / 1000)
-    print(f"cnsl_time:{time_order + timedelta(hours=1)} time_order:{time_order}")
-    if time_order + timedelta(hours=1) < datetime.now() and order['status'] != 'PARTIALLY_FILLED':
-        try:
+    print(f"cnsl_time:{time_order + timedelta(minutes=2)} time_order:{time_order} time_now: {datetime.now()}")
+    print(order)
+
+    if trigger < price and 1-(trigger/price) > 0.2:
+        if time_order + timedelta(minutes=2) < datetime.now() and order['status'] == 'NEW':
             result = client.cancel_order(
                 symbol=order['symbol'],
-                orderId=order['orderId'])
-            return {"order":order,"res":result,"price":result['price'],"return":result['origQty']*result['price'],"status": "no_filled",'executedQty':result['executedQty']}
-        except:
+                orderId=str(order['orderId']))
+            re = {"order":order,"res":result,"price":result['price'],"return":float(result['origQty'])*float(result['price']),"status": "NEW",'executedQty':result['executedQty']}
+            print(f"cansle order:{re}")
+            return re
+        elif time_order + timedelta(minutes=2) < datetime.now() and order['status'] == 'PARTIALLY_FILLED':
+            result = client.cancel_order(
+                symbol=order['symbol'],
+                orderId=str(order['orderId']))
+            re = {"order": order, "res": result, "price": result['price'], "return": float(result['origQty'])*float(result['price']),
+                  "status": "PARTIALLY_FILLED", 'executedQty': result['executedQty']}
+            print(f"cansle order:{re}")
+            return re
+        else:
             return 0
-    elif time_order + timedelta(hours=1) < datetime.now() and order['status'] == 'PARTIALLY_FILLED':
-        result = client.cancel_order(
-            symbol=order['symbol'],
-            orderId=order['orderId'])
-        return {"order":order,"res": result, "return": (result['origQty']-result['executedQty']) * result['price'],"status": "PARTIALLY_FILLED",'executedQty':result['executedQty']}
-    else:
-        return 0
 
 def numFrontZero(num):
     num = list(str(float(num)).split(".")[1])

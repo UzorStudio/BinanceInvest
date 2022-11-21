@@ -12,31 +12,31 @@ db = base.Base("localhost")
 #ord = bin_func.Sell(symb='TRXBTC',client=client,inv_sum=10000)
 #
 #
-#orders = client.get_open_orders(symbol='TRXBTC')
+orders = client.get_open_orders(symbol='TRXBTC')
 #for o in orders:
 #    if o['status'] != 'FILLED':
 #        print(ord)
 #
 
 
-#while True:
-#
-#    for o in orders:
-#        if o['type'] == 'LIMIT':
-#            print(o)
-#    print(client.get_avg_price(symbol='TRXBTC')['price'])
-#    time.sleep(5)
+while True:
+
+    for o in orders:
+        if o['type'] == 'LIMIT':
+            print(o)
+    print(client.get_avg_price(symbol='TRXBTC')['price'])
+    time.sleep(5)
 #print(bin_func.BuyOrder(symb="TRXBTC",inv_sum=10000,client=client,))
-print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
-print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
-print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
-print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
-print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
-print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
-print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
-print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
-print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
-print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
+#print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
+#print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
+#print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
+#print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
+#print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
+#print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
+#print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
+#print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
+#print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
+#print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
 
 #for b in client.get_account()['balances']:
 #    if float(b['free']) > 0 :
