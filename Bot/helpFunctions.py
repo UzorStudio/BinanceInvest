@@ -21,7 +21,7 @@ def cansle_order(order,client, trigger,price):
     print(f"cnsl_time:{time_order + timedelta(hours=1)} time_order:{time_order} time_now: {datetime.now()}")
     print(order)
 
-    if trigger < price and 1-(trigger/price) > 0.2:
+    if trigger < price and 1-(trigger/price) > 0.02:
         if time_order + timedelta(hours=1) < datetime.now() and order['status'] == 'NEW':
             result = client.cancel_order(
                 symbol=order['symbol'],
@@ -39,6 +39,8 @@ def cansle_order(order,client, trigger,price):
             return re
         else:
             return 0
+    else:
+        return 0
 
 def numFrontZero(num):
     num = list(str(float(num)).split(".")[1])
