@@ -55,15 +55,31 @@ def market_lot_size_test(symbol):
                 if s['filterType'] == 'MARKET_LOT_SIZE':
                     return {"minQty":float(s['minQty']),"maxQty":float(s['maxQty'])}
 
+
+def market_lot_size(symbol):
+    for i in inf['symbols']:
+        if i["symbol"] == symbol:
+            for s in i["filters"]:
+                #print(f"help: {s}")
+                if s['filterType'] == 'MARKET_LOT_SIZE':
+                    return {"minQty":float(s['minQty']),"maxQty":float(s['maxQty'])}
+
+
 def split_symbol_test(symbol):
     for i in inf_test['symbols']:
+        if i["symbol"] == symbol:
+            return {'baseAsset':i['baseAsset'],'quoteAsset':i['quoteAsset']}
+
+
+def split_symbol(symbol):
+    for i in inf['symbols']:
         if i["symbol"] == symbol:
             return {'baseAsset':i['baseAsset'],'quoteAsset':i['quoteAsset']}
 
 def toFixed(numObj, digits=0):
     return f"{numObj:.{digits}f}"
 
-def price_filter_zero_frotn_num(symbol):
+def price_filter_zero_frotn_num_test(symbol):
     for i in inf_test['symbols']:
         if i["symbol"] == symbol:
             for s in i["filters"]:
@@ -71,10 +87,14 @@ def price_filter_zero_frotn_num(symbol):
                 if s['filterType'] == 'PRICE_FILTER':
                     return int(len(list(s['minPrice'].split("1")[0].replace("0.",""))))
 
-def split_symbol(symbol):
+
+def price_filter_zero_frotn_num_(symbol):
     for i in inf['symbols']:
         if i["symbol"] == symbol:
-            return {'baseAsset':i['baseAsset'],'quoteAsset':i['quoteAsset']}
+            for s in i["filters"]:
+                # print(f"help: {s}")
+                if s['filterType'] == 'PRICE_FILTER':
+                    return int(len(list(s['minPrice'].split("1")[0].replace("0.",""))))
 
 def getminQty_test(symbol):
     """Возвращает минимальную сумму покупки первой валюты"""
@@ -91,11 +111,10 @@ def getminQty(symbol):
     """Возвращает минимальную сумму покупки первой валюты"""
     for i in inf['symbols']:
         if i["symbol"] == symbol:
-            #print(f"help: {i}")
             for s in i["filters"]:
-                #print(f"help: {s}")
+                # print(f"help: {s}")
                 if s['filterType'] == 'LOT_SIZE':
-                    return {"num":float(s['minQty']),"lot_size":len(s['minQty'].split("1")[0].replace('0.',""))}
+                    return {"num": float(s['minQty']), "lot_size": len(s['minQty'].split("1")[0].replace('0.', ""))}
 
 def getMinInv_test(symbol):
     for i in inf_test['symbols']:
