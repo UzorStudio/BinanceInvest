@@ -22,7 +22,7 @@ apis = open(API_PATH, "r").readlines()
 print(apis)
 client = Client(apis[0].replace("\n", ""),
                 apis[1].replace("\n", ""),
-                testnet=True)
+                )
 
 app = Flask(__name__)
 app.secret_key = "mimoza1122"
