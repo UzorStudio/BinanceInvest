@@ -1,4 +1,6 @@
 from binance.client import Client
+from binance.exceptions import BinanceAPIException
+
 import helpFunctions as hlp
 import logging
 
@@ -46,11 +48,16 @@ def Bye(symb,inv_sum,client,balance,price,total_balance):
             cn = float(cn)
             print(f"cn3:{cn}")
         logging.error(f"cn_final: {cn} symb:{symb} lot size: {h} ")
-        order = client.order_limit_buy(
-            symbol=symb,
-            quantity=cn,
-            price=toFixed(float(price),hlp.price_filter_zero_frotn_num(symb)+1)
-        )
+        try:
+            order = client.order_limit_buy(
+                symbol=symb,
+                quantity=cn,
+                price=toFixed(float(price),hlp.price_filter_zero_frotn_num(symb)+1)
+            )
+        except BinanceAPIException as e:
+            logging.error(e.args)
+            return False
+
         re = ({"bye": {"baseAsset": sy['baseAsset'], "count": order['origQty']},
                  "sell": {"quoteAsset":sy['quoteAsset'], "count":float(order['price'])*float(order['origQty'])},
                  "order":order})
@@ -121,16 +128,24 @@ def BuyOrder(symb,inv_sum,balance,price,client,total_balance):
         cn = float(format(float(balance), f".{h['lot_size'] + 1}f"))
         print(f"cn1 non balance: {cn}")
 
+    if h['lot_size'] == 0:
+        cn = int(cn)
+
     if float(balance) >= inv_sum:
         c = hlp.numFrontZero(cn)
         if c['count'] == 1 and c['count'] < 5:
             cn = int(cn)
             print(f"cn3:{cn}")
-        order = client.order_limit_buy(
-            symbol=symb,
-            quantity=cn,
-            price=toFixed(float(price),hlp.price_filter_zero_frotn_num(symb)+1)
-        )
+        try:
+            order = client.order_limit_buy(
+                symbol=symb,
+                quantity=cn,
+                price=toFixed(float(price),hlp.price_filter_zero_frotn_num(symb)+1)
+            )
+        except BinanceAPIException as e:
+            logging.error(e.args)
+            return False
+
         re = ({"bye": {"baseAsset": sy['baseAsset'], "count": order['origQty']},
                "sell": {"quoteAsset": sy['quoteAsset'], "count": float(order['price']) * float(order['origQty'])},
                "order": order})
