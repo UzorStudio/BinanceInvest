@@ -23,7 +23,7 @@ print(apis)
 client = Client(apis[0].replace("\n", ""),
                 apis[1].replace("\n", ""),
                 )
-
+db.UpdateSymbolInfo(client)
 app = Flask(__name__)
 app.secret_key = "mimoza1122"
 
@@ -556,5 +556,4 @@ def start():
 
 if __name__ == "__main__":
     start()
-    db.UpdateSymbolInfo(client)
     app.run(debug=False, host="0.0.0.0", port=5000)

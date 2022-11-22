@@ -123,7 +123,6 @@ def getMinInv(symbol):
     i = db.getSymbInfo(symbol)
     for s in i["filters"]:
         if s['filterType'] == 'MIN_NOTIONAL':
-            print(float(s['minNotional']))
             return float(s['minNotional'])
 
 
