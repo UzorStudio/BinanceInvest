@@ -5,11 +5,15 @@ import logging
 def toFixed(numObj, digits=0):
     return f"{numObj:.{digits}f}"
 
-def Bye(symb,inv_sum,client,balance,price):
+def Bye(symb,inv_sum,client,balance,price,total_balance):
     h = hlp.getminQty_test(symb)
     minInv =hlp.getMinInv_test(symb)
     sy = hlp.split_symbol_test(symb)
-
+    s = hlp.split_symbol_test(symb)
+    if balance < minInv and inv_sum < minInv:
+        return False
+    if float(total_balance[s['quoteAsset']]) < inv_sum:
+        return False
 
     cn = float(format(inv_sum / float(price), f".{h['lot_size'] + 1}f"))
     mx = hlp.market_lot_size_test(symb)
@@ -18,10 +22,6 @@ def Bye(symb,inv_sum,client,balance,price):
     elif cn < minInv:
         cn = float(minInv)
 
-    if balance < minInv and inv_sum < minInv:
-        return False
-
-    s = hlp.split_symbol_test(symb)
     logging.info(f"Bye: Inv Sum:{inv_sum} Bye Sum:{cn} {s['baseAsset']}")
     if float(balance) < inv_sum:
         cn= float(format(float(balance), f".{h['lot_size'] + 1}f"))
@@ -80,18 +80,21 @@ def check_order(symb,ordId,client):
     return result
 
 
-def BuyOrder(symb,inv_sum,balance,price,client):
+def BuyOrder(symb,inv_sum,balance,price,client,total_balance):
     h = hlp.getminQty_test(symb)
     minInv = hlp.getMinInv_test(symb)
     sy = hlp.split_symbol_test(symb)
+
+    if balance < minInv and inv_sum < minInv:
+        return False
+
+    if float(total_balance[sy['quoteAsset']]) < inv_sum:
+        return False
 
     cn = float(format(inv_sum / float(price), f".{h['lot_size'] + 1}f"))
     mx = hlp.market_lot_size_test(symb)["maxQty"]
     if cn > mx:
         cn = int(mx)
-
-    if balance < minInv and inv_sum < minInv:
-        return False
 
     s = hlp.split_symbol_test(symb)
     logging.info(f"Bye: Inv Sum:{inv_sum} Bye Sum:{cn} {s['baseAsset']}")

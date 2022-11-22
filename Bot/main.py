@@ -496,6 +496,7 @@ def worker():
         for bot in bots:
 
             if bot['next_check'] <= datetime.now() and bot['not_archive']:
+                total_balance = client.get_account()['balances']
                 db.botNextCheck(bot['_id'])
                 price = float(client.get_avg_price(symbol=bot['valute_par'])['price'])
                 logging.info(f"{bot['name']} {bot['_id']} Now price: {price} Bye lvl: {bot['bye_lvl']}")
@@ -504,7 +505,7 @@ def worker():
                 if price <= bot['bye_lvl'] and bot["total_sum_invest"] >= hlp.getMinInv_test(
                         bot['valute_par']) and price not in bot['last_price']:  # BYE
                     order = bin_func.Bye(symb=bot['valute_par'], client=client, inv_sum=bot['sum_invest'],
-                                         balance=bot['total_sum_invest'],price=price)
+                                         balance=bot['total_sum_invest'],price=price,total_balance=total_balance)
 
                     if order:
                         db.setLastPrice(bot["_id"], price)
@@ -525,7 +526,7 @@ def worker():
                 if price <= bot['triger_lvl'] and bot["order"] == False and bot[
                     "total_sum_invest"] >= hlp.getMinInv_test(bot['valute_par']) and price not in bot['last_price']:
                     order = bin_func.BuyOrder(symb=bot['valute_par'], client=client, inv_sum=bot['sum_invest'],
-                                              balance=bot['total_sum_invest'], price=bot["bye_lvl"])
+                                              balance=bot['total_sum_invest'], price=bot["bye_lvl"],total_balance=total_balance)
 
                     if order:
                         db.setLastPrice(bot["_id"], price)
