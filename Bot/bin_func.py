@@ -24,6 +24,8 @@ def Bye(symb,inv_sum,client,balance,price,total_balance):
             elif float(tb['free']) < inv_sum and float(tb['free']) < minInv:
                 return False
 
+    if balance < inv_sum:
+        cn = float(format(float(balance)/ float(price), f".{h['lot_size'] + 1}f"))
 
     if cn > mx["maxQty"]:
         cn = float(mx["maxQty"])
