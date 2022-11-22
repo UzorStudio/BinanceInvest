@@ -19,7 +19,8 @@ def Bye(symb,inv_sum,client,balance,price,total_balance):
     for tb in total_balance:
         if tb["asset"] == s['quoteAsset']:
             if float(tb['free']) < inv_sum and float(tb['free']) > minInv:
-                cn = float(minInv)
+                cn= float(format(float(tb['free'])/ float(price), f".{h['lot_size'] + 1}f"))
+                print(f"cn balance: {cn}")
             elif float(tb['free']) < inv_sum and float(tb['free']) < minInv:
                 return False
 
@@ -38,7 +39,7 @@ def Bye(symb,inv_sum,client,balance,price,total_balance):
     if float(balance) >= inv_sum:
         c = hlp.numFrontZero(cn)
         if c['count'] == 1 and c['count'] < 5:
-            cn = int(cn)
+            cn = float(cn)
             print(f"cn3:{cn}")
         print(f"cn_final: {cn} symb:{symb} price: {price}")
         order = client.order_limit_buy(
@@ -97,11 +98,11 @@ def BuyOrder(symb,inv_sum,balance,price,client,total_balance):
         return False
 
     cn = float(format(inv_sum / float(price), f".{h['lot_size'] + 1}f"))
-
     for tb in total_balance:
         if tb["asset"] == sy['quoteAsset']:
             if float(tb['free']) < inv_sum and float(tb['free']) > minInv:
-                cn = float(minInv)
+                cn = float(format(float(tb['free']) / float(price), f".{h['lot_size'] + 1}f"))
+                print(f"cn balance: {cn}")
             elif float(tb['free']) < inv_sum and float(tb['free']) < minInv:
                 return False
 
