@@ -37,6 +37,8 @@ def Bye(symb,inv_sum,client,balance,price,total_balance):
         cn= float(format(float(balance), f".{h['lot_size'] + 1}f"))
         print(f"cn1 non balance: {cn}")
 
+    if h['lot_size'] == 0:
+        cn = int(cn)
 
     if float(balance) >= inv_sum:
         c = hlp.numFrontZero(cn)
