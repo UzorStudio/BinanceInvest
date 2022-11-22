@@ -16,9 +16,9 @@ def Bye(symb,inv_sum,client,balance,price,total_balance):
         return False
 
     cn = float(format(inv_sum / float(price), f".{h['lot_size'] + 1}f"))
-    if float(total_balance[s['quoteAsset']]) < inv_sum and float(total_balance[s['quoteAsset']]) > minInv:
+    if float(total_balance[s['quoteAsset']]['free']) < inv_sum and float(total_balance[s['quoteAsset']]['free']) > minInv:
         cn = float(minInv)
-    elif float(total_balance[s['quoteAsset']]) < inv_sum and float(total_balance[s['quoteAsset']]) < minInv:
+    elif float(total_balance[s['quoteAsset']]['free']) < inv_sum and float(total_balance[s['quoteAsset']]['free']) < minInv:
         return False
 
 
@@ -89,15 +89,22 @@ def BuyOrder(symb,inv_sum,balance,price,client,total_balance):
     h = hlp.getminQty_test(symb)
     minInv = hlp.getMinInv_test(symb)
     sy = hlp.split_symbol_test(symb)
+    mx = hlp.market_lot_size_test(symb)["maxQty"]
 
     if balance < minInv and inv_sum < minInv:
         return False
 
-    if float(total_balance[sy['quoteAsset']]) < inv_sum:
+    cn = float(format(inv_sum / float(price), f".{h['lot_size'] + 1}f"))
+
+    if float(total_balance[sy['quoteAsset']]['free']) < inv_sum and float(
+            total_balance[sy['quoteAsset']]['free']) > minInv:
+        cn = float(minInv)
+    elif float(total_balance[sy['quoteAsset']]['free']) < inv_sum and float(
+            total_balance[sy['quoteAsset']]['free']) < minInv:
         return False
 
-    cn = float(format(inv_sum / float(price), f".{h['lot_size'] + 1}f"))
-    mx = hlp.market_lot_size_test(symb)["maxQty"]
+
+
     if cn > mx:
         cn = int(mx)
 
