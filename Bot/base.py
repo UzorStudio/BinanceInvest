@@ -209,7 +209,7 @@ class Base:
         orders_bye = bot['orders_bye']
         if res['order']['side'] == 'BUY':
             for o in orders_bye:
-                if o['id'] == res['order']['orderId']:
+                if o == res['order']['orderId']:
                     orders_bye.remove(o)
                     Bots.update_one({"_id": ObjectId(bot_id)}, {"$set":{'orders_bye':orders_bye}})
 
