@@ -245,10 +245,13 @@ def create():
 
         tck = []
         for t in client.get_all_tickers():
-            if len(str(hlp.getMinInv(t['symbol'])).split('e')) > 1:
-                tck.append({"minimum": format(float(hlp.getMinInv(t['symbol'])), ".8f"), "par": t})
-            else:
-                tck.append({"minimum": hlp.getMinInv(t['symbol']), "par": t})
+            try:
+                if len(str(hlp.getMinInv(t['symbol'])).split('e')) > 1:
+                    tck.append({"minimum": format(float(hlp.getMinInv(t['symbol'])), ".8f"), "par": t})
+                else:
+                    tck.append({"minimum": hlp.getMinInv(t['symbol']), "par": t})
+            except:
+                print(t)
 
         return render_template("createbot.html", coin=tck, balance=balances)
 
@@ -553,4 +556,5 @@ def start():
 
 if __name__ == "__main__":
     start()
+    db.UpdateSymbolInfo(client)
     app.run(debug=False, host="0.0.0.0", port=5000)

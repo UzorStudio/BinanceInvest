@@ -5,22 +5,22 @@ import base
 from binance.client import Client
 import bin_func
 #{'_id': ObjectId('636631a0c254806799853cb9'), 'valute_par': 'TRXBTC', 'name': 'TRXBTC', 'sum_invest': 0.1, 'bye_lvl': 3e-06, 'sell_lvl': 3.05e-06, 'triger_lvl': 3.05e-06, 'valuecheck': 'min', 'check_time': 1, 'next_check': datetime.datetime(2022, 11, 7, 12, 43, 13, 531000), 'order': False, 'count_hev': 10000.0, 'last_bye': ObjectId('6368d2f995050ace7cce1208'), 'first_bye': ObjectId('6368d2f995050ace7cce1208'), 'spent': 0.03026493, 'order_id': 0, 'not_archive': True, 'triger': True, 'earned': 0}
-client = Client("OW9lwAN9t72TYQylaKmwZqS5H3Leb4BwyzLfFWttgAtusfHLmdwXjYpZYwa4NiPu","HqkcS2ETC34T7h5SF0g9R5dyzJcMrm8fMzXotc2oQ2l9uonUSDntVPlrN34wf2o5",testnet=True)
+client = Client("Lz5Zbare6v2lnb88tBdqknqTywbMN600KLhl45F4FqWtHkVcW5bxhwENK3fG3zlm","qPZsFP1hKozzgs0rKlnNKruVDuGFcFuDgixBZhU5k3vF0Cud0hpr4mkO8fdgA9th")
 #db = base.Base("localhost")
 
 #print(client.order_market_sell(symbol='TRXBTC',quantity=10000))
 
 
-print(client.order_market_sell(symbol='TRXBTC', quantity=1823))
+print(client.get_all_tickers())
 
-orders = client.get_open_orders(symbol='TRXUSDT')
-for o in orders:
-    client.cancel_order(symbol='TRXUSDT',orderId=o['orderId'])
-
-#ord = bin_func.Sell(symb='TRXBTC',client=client,inv_sum=10000)
+#orders = client.get_open_orders(symbol='TRXUSDT')
+#for o in orders:
+#    client.cancel_order(symbol='TRXUSDT',orderId=o['orderId'])
 #
-#
-orders = client.get_open_orders(symbol='TRXBTC')
+##ord = bin_func.Sell(symb='TRXBTC',client=client,inv_sum=10000)
+##
+##
+#orders = client.get_open_orders(symbol='TRXBTC')
 for o in orders:
     if o['status'] != 'FILLED':
         print(ord)

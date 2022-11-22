@@ -201,6 +201,22 @@ class Base:
         Bots.update_one({"_id": ObjectId(bot_id)},
                         {"$push": {"orders_sell": {"id": order['order']['orderId'], "spents": float(spent)}}})
 
+
+    def UpdateSymbolInfo(self,client):
+        inf = client.get_exchange_info()
+        db = self.classter["BinanceInvest"]
+        Symbols = db["Symbols"]
+        Symbols.delete_many({})
+
+        for i in inf['symbols']:
+            Symbols.insert_one(i)
+
+    def getSymbInfo(self,symb):
+        db = self.classter["BinanceInvest"]
+        Symbols = db["Symbols"]
+
+        return Symbols.find_one({"symbol":symb})
+
     def dropOrderId(self,bot_id,res):
         db = self.classter["BinanceInvest"]
         Bots = db["Bots"]

@@ -2,6 +2,8 @@ from datetime import datetime, timedelta
 
 from binance.client import Client
 import json
+import base
+db = base.Base("mongodb://Roooasr:sedsaigUG12IHKJhihsifhaosf@mongodb:27017/")
 
 try:
     with open('exchange_info_test.json') as json_file:
@@ -9,11 +11,7 @@ try:
 except Exception as e:
     print(f"exchange_info_test open err: {e.args}")
 
-try:
-    with open('exchange_info.json') as json_file:
-        inf = json.load(json_file)
-except:
-    print("exchange_info open err")
+
 
 
 def cansle_order(order,client, trigger,price):
@@ -57,12 +55,11 @@ def market_lot_size_test(symbol):
 
 
 def market_lot_size(symbol):
-    for i in inf['symbols']:
-        if i["symbol"] == symbol:
-            for s in i["filters"]:
-                #print(f"help: {s}")
-                if s['filterType'] == 'MARKET_LOT_SIZE':
-                    return {"minQty":float(s['minQty']),"maxQty":float(s['maxQty'])}
+    i = db.getSymbInfo(symbol)
+    for s in i["filters"]:
+        #print(f"help: {s}")
+        if s['filterType'] == 'MARKET_LOT_SIZE':
+            return {"minQty":float(s['minQty']),"maxQty":float(s['maxQty'])}
 
 
 def split_symbol_test(symbol):
@@ -72,9 +69,8 @@ def split_symbol_test(symbol):
 
 
 def split_symbol(symbol):
-    for i in inf['symbols']:
-        if i["symbol"] == symbol:
-            return {'baseAsset':i['baseAsset'],'quoteAsset':i['quoteAsset']}
+    i = db.getSymbInfo(symbol)
+    return {'baseAsset':i['baseAsset'],'quoteAsset':i['quoteAsset']}
 
 def toFixed(numObj, digits=0):
     return f"{numObj:.{digits}f}"
@@ -89,12 +85,11 @@ def price_filter_zero_frotn_num_test(symbol):
 
 
 def price_filter_zero_frotn_num(symbol):
-    for i in inf['symbols']:
-        if i["symbol"] == symbol:
-            for s in i["filters"]:
-                # print(f"help: {s}")
-                if s['filterType'] == 'PRICE_FILTER':
-                    return int(len(list(s['minPrice'].split("1")[0].replace("0.",""))))
+    i = db.getSymbInfo(symbol)
+    for s in i["filters"]:
+        # print(f"help: {s}")
+        if s['filterType'] == 'PRICE_FILTER':
+            return int(len(list(s['minPrice'].split("1")[0].replace("0.",""))))
 
 def getminQty_test(symbol):
     """Возвращает минимальную сумму покупки первой валюты"""
@@ -109,12 +104,11 @@ def getminQty_test(symbol):
 
 def getminQty(symbol):
     """Возвращает минимальную сумму покупки первой валюты"""
-    for i in inf['symbols']:
-        if i["symbol"] == symbol:
-            for s in i["filters"]:
-                # print(f"help: {s}")
-                if s['filterType'] == 'LOT_SIZE':
-                    return {"num": float(s['minQty']), "lot_size": len(s['minQty'].split("1")[0].replace('0.', ""))}
+    i = db.getSymbInfo(symbol)
+    for s in i["filters"]:
+        # print(f"help: {s}")
+        if s['filterType'] == 'LOT_SIZE':
+            return {"num": float(s['minQty']), "lot_size": len(s['minQty'].split("1")[0].replace('0.', ""))}
 
 def getMinInv_test(symbol):
     for i in inf_test['symbols']:
@@ -126,12 +120,11 @@ def getMinInv_test(symbol):
 
 
 def getMinInv(symbol):
-    for i in inf['symbols']:
-        if i["symbol"] == symbol:
-            for s in i["filters"]:
-
-                if s['filterType'] == 'MIN_NOTIONAL':
-                    return float(s['minNotional'])
+    i = db.getSymbInfo(symbol)
+    for s in i["filters"]:
+        if s['filterType'] == 'MIN_NOTIONAL':
+            print(float(s['minNotional']))
+            return float(s['minNotional'])
 
 
 def update(api_kay,api_secret,test_net_on):
