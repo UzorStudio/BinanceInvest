@@ -43,7 +43,7 @@ def Bye(symb,inv_sum,client,balance,price,total_balance):
         if c['count'] == 1 and c['count'] < 5:
             cn = float(cn)
             print(f"cn3:{cn}")
-        print(f"cn_final: {cn} symb:{symb} price: {price}")
+        logging.error(f"cn_final: {cn} symb:{symb} price: {price}")
         order = client.order_limit_buy(
             symbol=symb,
             quantity=cn,
