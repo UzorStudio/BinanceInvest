@@ -10,13 +10,18 @@ def Bye(symb,inv_sum,client,balance,price,total_balance):
     minInv =hlp.getMinInv_test(symb)
     sy = hlp.split_symbol_test(symb)
     s = hlp.split_symbol_test(symb)
+    mx = hlp.market_lot_size_test(symb)
+
     if balance < minInv and inv_sum < minInv:
-        return False
-    if float(total_balance[s['quoteAsset']]) < inv_sum:
         return False
 
     cn = float(format(inv_sum / float(price), f".{h['lot_size'] + 1}f"))
-    mx = hlp.market_lot_size_test(symb)
+    if float(total_balance[s['quoteAsset']]) < inv_sum and float(total_balance[s['quoteAsset']]) > minInv:
+        cn = float(minInv)
+    elif float(total_balance[s['quoteAsset']]) < inv_sum and float(total_balance[s['quoteAsset']]) < minInv:
+        return False
+
+
     if cn > mx["maxQty"]:
         cn = float(mx["maxQty"])
     elif cn < minInv:
