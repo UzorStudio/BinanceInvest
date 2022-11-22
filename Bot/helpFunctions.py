@@ -88,7 +88,7 @@ def price_filter_zero_frotn_num_test(symbol):
                     return int(len(list(s['minPrice'].split("1")[0].replace("0.",""))))
 
 
-def price_filter_zero_frotn_num_(symbol):
+def price_filter_zero_frotn_num(symbol):
     for i in inf['symbols']:
         if i["symbol"] == symbol:
             for s in i["filters"]:

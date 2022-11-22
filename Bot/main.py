@@ -245,10 +245,10 @@ def create():
 
         tck = []
         for t in client.get_all_tickers():
-            if len(str(hlp.getMinInv_test(t['symbol'])).split('e')) > 1:
-                tck.append({"minimum": format(float(hlp.getMinInv_test(t['symbol'])), ".8f"), "par": t})
+            if len(str(hlp.getMinInv(t['symbol'])).split('e')) > 1:
+                tck.append({"minimum": format(float(hlp.getMinInv(t['symbol'])), ".8f"), "par": t})
             else:
-                tck.append({"minimum": hlp.getMinInv_test(t['symbol']), "par": t})
+                tck.append({"minimum": hlp.getMinInv(t['symbol']), "par": t})
 
         return render_template("createbot.html", coin=tck, balance=balances)
 
@@ -502,7 +502,7 @@ def worker():
                 logging.info(f"{bot['name']} {bot['_id']} Now price: {price} Bye lvl: {bot['bye_lvl']}")
                 checkOrers(bot, price)
 
-                if price <= bot['bye_lvl'] and bot["total_sum_invest"] >= hlp.getMinInv_test(
+                if price <= bot['bye_lvl'] and bot["total_sum_invest"] >= hlp.getMinInv(
                         bot['valute_par']) and price not in bot['last_price']:  # BYE
                     order = bin_func.Bye(symb=bot['valute_par'], client=client, inv_sum=bot['sum_invest'],
                                          balance=bot['total_sum_invest'],price=price,total_balance=total_balance)
@@ -524,7 +524,7 @@ def worker():
 
 
                 if price <= bot['triger_lvl'] and bot["order"] == False and bot[
-                    "total_sum_invest"] >= hlp.getMinInv_test(bot['valute_par']) and price not in bot['last_price']:
+                    "total_sum_invest"] >= hlp.getMinInv(bot['valute_par']) and price not in bot['last_price']:
                     order = bin_func.BuyOrder(symb=bot['valute_par'], client=client, inv_sum=bot['sum_invest'],
                                               balance=bot['total_sum_invest'], price=bot["bye_lvl"],total_balance=total_balance)
 
