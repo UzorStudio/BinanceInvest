@@ -502,13 +502,13 @@ def checkOrers(bot,price,total_balance):
                 order = bin_func.Bye(symb=bot['valute_par'], client=client, inv_sum=bot['sum_invest'],
                                      balance=bot['total_sum_invest'], price=bot['bye_lvl'], total_balance=total_balance)
 
-            if order:
-                db.setLastPrice(bot["_id"], price)
-                db.ByeForBot(bot_id=bot['_id'],
-                             order=order, spent=float(order["sell"]["count"]))
-            else:
-                logging.error(
-                    f"NONE BALANCE {bot['name']} {bot['_id']} Now price: {price} Bye lvl: {bot['bye_lvl']}")
+                if order:
+                    db.setLastPrice(bot["_id"], price)
+                    db.ByeForBot(bot_id=bot['_id'],
+                                 order=order, spent=float(order["sell"]["count"]))
+                else:
+                    logging.error(
+                        f"NONE BALANCE {bot['name']} {bot['_id']} Now price: {price} Bye lvl: {bot['bye_lvl']}")
 
 def worker():
     print("tr start")
