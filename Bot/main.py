@@ -454,7 +454,7 @@ def messagebot(id):
         return render_template("message.html", hist=hist, d=date)
 
 
-def checkOrers(bot,price):
+def checkOrers(bot,price,total_balance):
     for order_bot in db.getOrdersByeBot(bot['_id']):
         order = client.get_order(
             symbol=bot['valute_par'],
@@ -466,6 +466,13 @@ def checkOrers(bot,price):
                                 count=float(order['executedQty']),
                                 spent=float(order['cummulativeQuoteQty']),
                                 bye_lvl=order['price'])
+            ##  Добавил
+            if bot['count_hev'] > 0:  # SELL
+                order = bin_func.Sell(bot['valute_par'], inv_sum=bot['count_hev'], client=client, price=bot['sell_lvl'])
+                if order and float(order['bye']['count']) > 0:
+                    db.SellForBot(bot_id=bot['_id'], order=order, spent=bot['spent_true'])
+
+
         cnsl = hlp.cansle_order(order, client,bot['triger_lvl'],price)
         if cnsl != 0:
             print(f"cnsl: {bot['_id']} ")
@@ -490,6 +497,19 @@ def checkOrers(bot,price):
             print(f"sell in paarsers {bot['_id']}")
             db.dropLastPrice(bot["_id"])
 
+            ## Добавил
+            if bot["total_sum_invest"] >= hlp.getMinInv(bot['valute_par']) and price not in bot['last_price']:  # BYE
+                order = bin_func.Bye(symb=bot['valute_par'], client=client, inv_sum=bot['sum_invest'],
+                                     balance=bot['total_sum_invest'], price=price, total_balance=total_balance)
+
+            if order:
+                db.setLastPrice(bot["_id"], price)
+                db.ByeForBot(bot_id=bot['_id'],
+                             order=order, spent=float(order["sell"]["count"]))
+            else:
+                logging.error(
+                    f"NONE BALANCE {bot['name']} {bot['_id']} Now price: {price} Bye lvl: {bot['bye_lvl']}")
+
 def worker():
     print("tr start")
 
@@ -503,7 +523,7 @@ def worker():
                 db.botNextCheck(bot['_id'])
                 price = float(client.get_avg_price(symbol=bot['valute_par'])['price'])
                 logging.info(f"{bot['name']} {bot['_id']} Now price: {price} Bye lvl: {bot['bye_lvl']}")
-                checkOrers(bot, price)
+                checkOrers(bot, price,total_balance)
 
                 if price <= bot['bye_lvl'] and bot["total_sum_invest"] >= hlp.getMinInv(
                         bot['valute_par']) and price not in bot['last_price']:  # BYE
@@ -536,7 +556,7 @@ def worker():
                         db.setTriger(bot["_id"],True)
                         db.ByeForBot(bot_id=bot['_id'],
                                      order=order, spent=float(order["sell"]["count"]))
-                checkOrers(bot,price)
+                checkOrers(bot,price,total_balance)
 
         sleep(30)
 
