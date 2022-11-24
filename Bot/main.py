@@ -498,19 +498,6 @@ def checkOrers(bot,price,total_balance):
             print(f"sell in paarsers {bot['_id']}")
             db.dropLastPrice(bot["_id"])
 
-            ## Добавил
-            if bot["total_sum_invest"] >= hlp.getMinInv(bot['valute_par']) and price not in bot['last_price']:  # BYE
-                order = bin_func.Bye(symb=bot['valute_par'], client=client, inv_sum=bot['sum_invest'],
-                                     balance=bot['total_sum_invest'], price=bot['bye_lvl'], total_balance=total_balance)
-
-                if order:
-                    db.setLastPrice(bot["_id"], price)
-                    db.ByeForBot(bot_id=bot['_id'],
-                                 order=order, spent=float(order["sell"]["count"]))
-                else:
-                    logging.error(
-                        f"NONE BALANCE {bot['name']} {bot['_id']} Now price: {price} Bye lvl: {bot['bye_lvl']}")
-
 def worker():
     print("tr start")
 
@@ -539,11 +526,11 @@ def worker():
                         logging.error(
                             f"NONE BALANCE {bot['name']} {bot['_id']} Now price: {price} Bye lvl: {bot['bye_lvl']}")
 
-                #elif price >= bot['sell_lvl'] and bot['count_hev'] > 0:  # SELL
-#
-                #    order = bin_func.Sell(bot['valute_par'], inv_sum=bot['count_hev'], client=client,price=price)
-                #    if order and float(order['bye']['count']) > 0:
-                #        db.SellForBot(bot_id=bot['_id'], order=order, spent=bot['spent_true'])
+                elif price >= bot['sell_lvl'] and bot['count_hev'] > 0:  # SELL
+
+                    order = bin_func.Sell(bot['valute_par'], inv_sum=bot['count_hev'], client=client,price=price)
+                    if order and float(order['bye']['count']) > 0:
+                        db.SellForBot(bot_id=bot['_id'], order=order, spent=bot['spent_true'])
 
 
 
