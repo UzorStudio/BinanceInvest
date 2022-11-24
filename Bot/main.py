@@ -453,6 +453,13 @@ def messagebot(id):
 
         return render_template("message.html", hist=hist, d=date)
 
+@app.route("/zeros", methods=["POST","GET"])
+def zeros():
+    if request.method == "POST":
+        pass
+    else:
+        db.ZeroBot()
+        return redirect('/')
 
 def checkOrers(bot,price,total_balance):
     for order_bot in db.getOrdersByeBot(bot['_id']):

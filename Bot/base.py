@@ -91,6 +91,45 @@ class Base:
         else:
             Bots.update_one({"_id":ObjectId(bot_id)},{"$inc":{'total_sum_invest':+ret['return']}})
 
+
+    def ZeroBot(self):
+        db = self.classter["BinanceInvest"]
+        Bots = db["Bots"]
+
+        for bot in Bots.find({}):
+            post = {
+                "valute_par": bot["valute_par"],
+                "name":  bot["valute_par"],
+                "sum_invest":  bot["base_sum_invest"],
+                "total_sum_invest":  bot["base_total_sum_invest"],
+                "bye_lvl": bot["bye_lvl"],
+                "sell_lvl": bot["sell_lvl"],
+                "triger_lvl": bot["triger_lvl"],
+                'valuecheck': bot["valuecheck"],
+                'check_time': bot["check_time"],
+                'next_check': datetime.now(),
+                'order': False,
+                'orders_bye': [],
+                'orders_sell': [],
+                "count_hev": 0,  # записывать количество
+                'spent': 0,
+                'spent_true': 0,
+                "order_id": 0,
+                'not_archive': True,
+                'triger': bot["triger"],
+                "cikle_profit": 0,
+                "total_profit": 0,
+                "cikle_count": bot["cikle_count"],
+                "base_sum_invest": bot["base_sum_invest"],
+                "base_total_sum_invest": bot["base_total_sum_invest"],
+                "earned": bot["earned"],
+                "last_price": []
+            }
+
+            Bots.update_one({"_id":ObjectId(bot["_id"])},{"$set":post})
+
+
+
     def reloadBot(self, id, sum_invest, bye_lvl,base_total_sum_invest, sell_lvl, triger_lvl, valuecheck, check_time, triger):
         db = self.classter["BinanceInvest"]
         Bots = db["Bots"]
