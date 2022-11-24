@@ -470,6 +470,7 @@ def checkOrers(bot,price,total_balance):
             if bot['count_hev'] > 0:  # SELL
                 order = bin_func.Sell(bot['valute_par'], inv_sum=bot['count_hev'], client=client, price=bot['sell_lvl'])
                 if order and float(order['bye']['count']) > 0:
+                    print(bot['spent_true'])
                     db.SellForBot(bot_id=bot['_id'], order=order, spent=bot['spent_true'])
 
 
@@ -538,11 +539,11 @@ def worker():
                         logging.error(
                             f"NONE BALANCE {bot['name']} {bot['_id']} Now price: {price} Bye lvl: {bot['bye_lvl']}")
 
-                elif price >= bot['sell_lvl'] and bot['count_hev'] > 0:  # SELL
-
-                    order = bin_func.Sell(bot['valute_par'], inv_sum=bot['count_hev'], client=client,price=price)
-                    if order and float(order['bye']['count']) > 0:
-                        db.SellForBot(bot_id=bot['_id'], order=order, spent=bot['spent_true'])
+                #elif price >= bot['sell_lvl'] and bot['count_hev'] > 0:  # SELL
+#
+                #    order = bin_func.Sell(bot['valute_par'], inv_sum=bot['count_hev'], client=client,price=price)
+                #    if order and float(order['bye']['count']) > 0:
+                #        db.SellForBot(bot_id=bot['_id'], order=order, spent=bot['spent_true'])
 
 
 

@@ -257,8 +257,8 @@ class Base:
                 ord = bot['orders_bye']
                 ord.remove(o)
                 Bots.update_one({"_id": ObjectId(bot_id)}, {"$set":{'orders_bye':ord}})
-        Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc":{"count_hev": +count}})
-        Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc":{"spent_true": +spent}})
+        Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc":{"count_hev": +count,"spent_true": +spent}})
+        Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc":{}})
         Hist.insert_one(post)
 
 
