@@ -520,7 +520,7 @@ def worker():
                 db.botNextCheck(bot['_id'])
                 price = float(client.get_avg_price(symbol=bot['valute_par'])['price'])
                 logging.info(f"{bot['name']} {bot['_id']} Now price: {price} Bye lvl: {bot['bye_lvl']}")
-                checkOrers(bot, price,total_balance)
+                checkOrers(bot, price)
 
                 if price <= bot['bye_lvl'] and bot["total_sum_invest"] >= hlp.getMinInv(
                         bot['valute_par']) and price not in bot['last_price']:  # BYE
