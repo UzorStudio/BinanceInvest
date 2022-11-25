@@ -236,7 +236,7 @@ class Base:
         db = self.classter["BinanceInvest"]
         Bots = db["Bots"]
 
-        Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc": {"count_hev": -float(order['sell']['count'])}})
+        Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc": {"count_hev": -float(order['sell']['count']),"spent_true": -spent}})
         Bots.update_one({"_id": ObjectId(bot_id)},
                         {"$push": {"orders_sell": {"id": order['order']['orderId'], "spents": float(spent)}}})
 

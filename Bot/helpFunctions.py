@@ -15,11 +15,8 @@ except Exception as e:
 
 
 def cansle_order(order,client, trigger,price):
-    if "updateTime" in order:
-        time_order = datetime.fromtimestamp(int(order['updateTime']) / 1000)
-    else:
-        print("strenge error_______________")
-        return 0
+    time_order = datetime.fromtimestamp(int(order['updateTime']) / 1000)
+
     print(f"cnsl_time:{time_order + timedelta(hours=1)} time_order:{time_order} time_now: {datetime.now()}")
     print(order)
 
