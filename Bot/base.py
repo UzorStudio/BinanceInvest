@@ -347,7 +347,6 @@ class Base:
                                                              }})
         Bots.update_one({"_id": ObjectId(bot_id)}, {"$set": {"cikle_profit": profit,
                                                              "spent": bot['spent']-float(spent),
-                                                             "spent_true": bot['spent_true']-float(spent),
                                                              "total_profit": total_percent,
                                                              'total_sum_invest':bot['base_total_sum_invest']+(bot['base_total_sum_invest']* (profit / 100))
                                                              }})
