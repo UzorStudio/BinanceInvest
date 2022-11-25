@@ -475,10 +475,12 @@ def checkOrers(bot,price,total_balance):
                                 bye_lvl=order['price'])
             ##  Добавил
             bot = db.getBot(bot["_id"])
-            order = bin_func.Sell(bot['valute_par'], inv_sum=bot['count_hev'], client=client, price=bot['sell_lvl'])
-            if order and float(order['bye']['count']) > 0:
-                print(bot['spent_true'])
-                db.SellForBot(bot_id=bot['_id'], order=order, spent=bot['spent_true'])
+            logging.info(f"___sell post bye: {bot}")
+            if bot['count_hev'] > 0:
+                order = bin_func.Sell(bot['valute_par'], inv_sum=bot['count_hev'], client=client, price=bot['sell_lvl'])
+                if order and float(order['bye']['count']) > 0:
+                    print(bot['spent_true'])
+                    db.SellForBot(bot_id=bot['_id'], order=order, spent=bot['spent_true'])
 
         cnsl = hlp.cansle_order(order, client,bot['triger_lvl'],price)
         if cnsl != 0:
