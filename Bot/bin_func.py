@@ -64,7 +64,7 @@ def Bye(symb,inv_sum,client,balance,price,total_balance):
         print(f"cn: {cn} bye:{re}")
         return re
 
-def Sell(symb,inv_sum,client,price):
+def Sell(symb,inv_sum,client,total_balance,price):
     h = hlp.getminQty(symb)
     sy = hlp.split_symbol(symb)
     cn = float(format(inv_sum, f".{h['lot_size'] + 1}f"))
@@ -73,6 +73,12 @@ def Sell(symb,inv_sum,client,price):
         cn = int(mx)
     print(f"cn sell: {cn}")
     print(f"cn_final: {cn} symb:{symb} price: {price}")
+
+    for tb in total_balance:
+        if tb["asset"] == sy['baseAsset']:
+            if float(tb['free']) < cn:
+                cn = float(format(float(tb['free']), f".{h['lot_size'] + 1}f"))
+
     order = client.order_limit_sell(
         symbol=symb,
         quantity=cn,

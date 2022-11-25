@@ -461,7 +461,7 @@ def zeros():
         db.ZeroBot()
         return redirect('/')
 
-def checkOrers(bot,price,total_balance):
+def checkOrers(bot,price):
     for order_bot in db.getOrdersByeBot(bot['_id']):
         order = client.get_order(
             symbol=bot['valute_par'],
@@ -477,7 +477,8 @@ def checkOrers(bot,price,total_balance):
             bot = db.getBot(bot["_id"])
             logging.info(f"___sell post bye: {bot}")
             if bot['count_hev'] > 0:
-                order = bin_func.Sell(bot['valute_par'], inv_sum=bot['count_hev'], client=client, price=bot['sell_lvl'])
+                total_balance = client.get_account()['balances']
+                order = bin_func.Sell(bot['valute_par'], inv_sum=bot['count_hev'],total_balance = total_balance, client=client, price=bot['sell_lvl'])
                 if order and float(order['bye']['count']) > 0:
                     print(bot['spent_true'])
                     db.SellForBot(bot_id=bot['_id'], order=order, spent=bot['spent_true'])
@@ -552,7 +553,7 @@ def worker():
                         db.setTriger(bot["_id"],True)
                         db.ByeForBot(bot_id=bot['_id'],
                                      order=order, spent=float(order["sell"]["count"]))
-                checkOrers(bot,price,total_balance)
+                checkOrers(bot,price)
 
         sleep(30)
 
