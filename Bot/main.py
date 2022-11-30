@@ -506,6 +506,11 @@ def checkOrers(bot,price):
                                  spent=order_bot['spents'])
             print(f"sell in paarsers {bot['_id']}")
             db.dropLastPrice(bot["_id"])
+        if order["status"] == 'CANCELED' and order["side"] == 'SELL':
+            db.cancelOrderSell(origQty=order['origQty'],orderId=order['orderId'],bot_id=bot["_id"])
+        if order["status"] == 'CANCELED' and order["side"] == 'BUY':
+            db.cancelOrderBye(order=order,bot_id=bot["_id"])
+
 
 def worker():
     print("tr start")

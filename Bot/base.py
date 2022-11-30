@@ -395,6 +395,32 @@ class Base:
 
         return Bots.find_one({"_id":ObjectId(bot_id)})['orders_bye']
 
+
+    def cancelOrderSell(self,origQty,bot_id,orderId):
+        db = self.classter["BinanceInvest"]
+        Bots = db["Bots"]
+        ord = Bots.find_one({"_id":ObjectId(bot_id)})['orders_sell']
+        spent = 0
+        for o in ord:
+            if o['id'] == orderId:
+                ord.remove(o)  # работает
+                spent = o['spents']
+                Bots.update_one({"_id": ObjectId(bot_id)}, {"$set": {'orders_sell': ord}})
+
+
+        Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc":{"count_hev": +float(origQty),"spent_true": +spent}})
+
+    def cancelOrderBye(self, order, bot_id):
+        db = self.classter["BinanceInvest"]
+        Bots = db["Bots"]
+        ord = Bots.find_one({"_id": ObjectId(bot_id)})['orders_bye']
+        for o in ord:
+            if o == order['orderId']:
+                ord.remove(o)  # работает
+                Bots.update_one({"_id": ObjectId(bot_id)}, {"$set": {'orders_bye': ord}})
+
+        Bots.update_one({"_id":ObjectId(bot_id)},{"$inc":{'total_sum_invest':+(order['origQty']*order['price'])}})
+
     def addCountHevOnOrder(self,bot_id,count):
         db = self.classter["BinanceInvest"]
         Bots = db["Bots"]
