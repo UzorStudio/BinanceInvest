@@ -73,17 +73,17 @@ def Sell(symb,inv_sum,client,total_balance,price):
         cn = int(mx)
     print(f"cn sell: {cn}")
     print(f"cn_final: {cn} symb:{symb} price: {price}")
+    try:
 
-    for tb in total_balance:
-        if tb["asset"] == sy['baseAsset']:
-            if float(tb['free']) < cn:
-                cn = float(format(float(tb['free']), f".{h['lot_size'] + 1}f"))
+        order = client.order_limit_sell(
+            symbol=symb,
+            quantity=cn,
+            price=toFixed(float(price),hlp.price_filter_zero_frotn_num(symb)+1)
+        )
+    except BinanceAPIException as e:
+        logging.error(e.args)
+        return False
 
-    order = client.order_limit_sell(
-        symbol=symb,
-        quantity=cn,
-        price=toFixed(float(price),hlp.price_filter_zero_frotn_num(symb)+1)
-    )
     re = ({"sell":{"quoteAsset":sy['baseAsset'], "count":order['origQty']},
               "bye":{"baseAsset": sy['quoteAsset'], "count": float(order['price'])*float(order['origQty'])},
               "order":order})

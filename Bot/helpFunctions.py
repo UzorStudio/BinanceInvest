@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from binance.client import Client
 import json
 import base
-db = base.Base("mongodb://Roooasr:sedsaigUG12IHKJhihsifhaosf@mongodb:27017/")
+db = base.Base("localhost")
 
 try:
     with open('exchange_info_test.json') as json_file:

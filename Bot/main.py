@@ -478,6 +478,7 @@ def checkOrers(bot,price):
             logging.info(f"___sell post bye: {bot}")
             if bot['count_hev'] > 0:
                 total_balance = client.get_account()['balances']
+                logging.info(f"spent_true: {bot['spent_true']}")
                 order = bin_func.Sell(bot['valute_par'], inv_sum=bot['count_hev'],total_balance = total_balance, client=client, price=bot['sell_lvl'])
                 if order and float(order['bye']['count']) > 0:
                     print(bot['spent_true'])
@@ -526,6 +527,7 @@ def worker():
                 price = float(client.get_avg_price(symbol=bot['valute_par'])['price'])
                 logging.info(f"{bot['name']} {bot['_id']} Now price: {price} Bye lvl: {bot['bye_lvl']}")
                 checkOrers(bot, price)
+                bot = db.getBot(bot["_id"])
 
                 if price <= bot['bye_lvl'] and bot["total_sum_invest"] >= hlp.getMinInv(
                         bot['valute_par']) and price not in bot['last_price']:  # BYE
@@ -536,6 +538,7 @@ def worker():
                         db.setLastPrice(bot["_id"], price)
                         db.ByeForBot(bot_id=bot['_id'],
                                      order=order, spent=float(order["sell"]["count"]))
+                        bot = db.getBot(bot["_id"])
                     else:
                         logging.error(
                             f"NONE BALANCE {bot['name']} {bot['_id']} Now price: {price} Bye lvl: {bot['bye_lvl']}")
@@ -544,6 +547,7 @@ def worker():
 
                     order = bin_func.Sell(bot['valute_par'], inv_sum=bot['count_hev'], client=client,price=price,total_balance=total_balance)
                     if order and float(order['bye']['count']) > 0:
+                        bot = db.getBot(bot["_id"])
                         db.SellForBot(bot_id=bot['_id'], order=order, spent=bot['spent_true'])
 
 
@@ -558,6 +562,7 @@ def worker():
                         db.setTriger(bot["_id"],True)
                         db.ByeForBot(bot_id=bot['_id'],
                                      order=order, spent=float(order["sell"]["count"]))
+                bot = db.getBot(bot["_id"])
                 checkOrers(bot,price)
 
         sleep(30)
