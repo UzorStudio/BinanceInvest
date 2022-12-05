@@ -235,10 +235,11 @@ class Base:
     def SellForBot(self, bot_id, order,spent):
         db = self.classter["BinanceInvest"]
         Bots = db["Bots"]
+        bot = Bots.find_one({"_id": ObjectId(bot_id)})
 
         Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc": {"count_hev": -float(order['sell']['count']),"spent_true": -spent}})
         Bots.update_one({"_id": ObjectId(bot_id)},
-                        {"$push": {"orders_sell": {"id": order['order']['orderId'], "spents": float(spent)}}})
+                        {"$push": {"orders_sell": {"id": order['order']['orderId'], "spents": float(spent),"be_bye":bot["last_price"]}}})
 
 
     def UpdateSymbolInfo(self,client):

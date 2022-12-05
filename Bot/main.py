@@ -515,32 +515,34 @@ def checkOrers(bot,price):
 
 def sellUpBot(bot):
     price = float(client.get_avg_price(symbol=bot['valute_par'])['price'])
-    for order_bot in db.getOrdersByeBot(bot['_id']):
+    for order_bot in db.getOrdersSellBot(bot['_id']):
         order = client.get_order(
             symbol=bot['valute_par'],
-            orderId=str(order_bot))
-        if order["side"] == 'BUY':
+            orderId=str(order_bot['id']))
+        if order["side"] == 'SELL':
             if "updateTime" in order:
                 time_order = datetime.fromtimestamp(int(order['updateTime']) / 1000)
                 if time_order + timedelta(hours=1) < datetime.now() and order['status'] == 'NEW':
-                    if order['price'] < price:
-                        orders_sell = db.getOrdersSellBot(bot_id=bot['_id'])
-                        for order_sell in orders_sell:
-                            order = client.get_order(
-                                symbol=bot['valute_par'],
-                                orderId=str(order_sell['id']))
-                            db.cancelOrderSell(bot_id=bot['_id'],orderId=order_sell['id'],origQty=order['origQty'])
+                    for ord in bot['orders_sell']:
+                        if max(ord["be_bye"]) < price:
 
-                        bot = db.getBot(bot["_id"])
-                        logging.info(f"___sell post cansle post 1 hour: {bot}")
-                        if bot['count_hev'] > 0:
-                            total_balance = client.get_account()['balances']
-                            logging.info(f"spent_true: {bot['spent_true']}")
-                            order = bin_func.Sell(bot['valute_par'], inv_sum=bot['count_hev'],
-                                                  total_balance=total_balance, client=client, price=price)
-                            if order and float(order['bye']['count']) > 0:
-                                print(bot['spent_true'])
-                                db.SellForBot(bot_id=bot['_id'], order=order, spent=bot['spent_true'])
+                            orderforsell = client.get_order(
+                                symbol=bot['valute_par'],
+                                orderId=str(ord['id']))
+                            db.cancelOrderSell(bot_id=bot['_id'],orderId=ord['id'],origQty=orderforsell['origQty'])
+                            client.cancel_order(
+                                symbol=order['symbol'],
+                                orderId=str(ord['id']))
+                            bot = db.getBot(bot["_id"])
+                            logging.info(f"___sell post cansle post 1 hour: {bot}")
+                            if bot['count_hev'] > 0:
+                                total_balance = client.get_account()['balances']
+                                logging.info(f"spent_true: {bot['spent_true']}")
+                                order = bin_func.Sell(bot['valute_par'], inv_sum=bot['count_hev'],
+                                                      total_balance=total_balance, client=client, price=price)
+                                if order and float(order['bye']['count']) > 0:
+                                    print(bot['spent_true'])
+                                    db.SellForBot(bot_id=bot['_id'], order=order, spent=bot['spent_true'])
 
 
             else:
