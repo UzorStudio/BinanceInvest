@@ -10,7 +10,7 @@ from binance.client import Client
 from binance.enums import SIDE_BUY, TIME_IN_FORCE_GTC, ORDER_TYPE_LIMIT, SIDE_SELL
 from flask import Flask, render_template, request, redirect, session
 import base
-from datetime import datetime
+from datetime import datetime, timedelta
 from threading import Thread
 import bin_func
 
@@ -513,6 +513,40 @@ def checkOrers(bot,price):
             db.cancelOrderBye(order=order,bot_id=bot["_id"])
 
 
+def sellUpBot(bot):
+    price = float(client.get_avg_price(symbol=bot['valute_par'])['price'])
+    for order_bot in db.getOrdersByeBot(bot['_id']):
+        order = client.get_order(
+            symbol=bot['valute_par'],
+            orderId=str(order_bot))
+        if order["side"] == 'BUY':
+            if "updateTime" in order:
+                time_order = datetime.fromtimestamp(int(order['updateTime']) / 1000)
+                if time_order + timedelta(hours=1) < datetime.now() and order['status'] == 'NEW':
+                    if order['price'] < price:
+                        orders_sell = db.getOrdersSellBot(bot_id=bot['_id'])
+                        for order_sell in orders_sell:
+                            order = client.get_order(
+                                symbol=bot['valute_par'],
+                                orderId=str(order_sell['id']))
+                            db.cancelOrderSell(bot_id=bot['_id'],orderId=order_sell['id'],origQty=order['origQty'])
+
+                        bot = db.getBot(bot["_id"])
+                        logging.info(f"___sell post cansle post 1 hour: {bot}")
+                        if bot['count_hev'] > 0:
+                            total_balance = client.get_account()['balances']
+                            logging.info(f"spent_true: {bot['spent_true']}")
+                            order = bin_func.Sell(bot['valute_par'], inv_sum=bot['count_hev'],
+                                                  total_balance=total_balance, client=client, price=price)
+                            if order and float(order['bye']['count']) > 0:
+                                print(bot['spent_true'])
+                                db.SellForBot(bot_id=bot['_id'], order=order, spent=bot['spent_true'])
+
+
+            else:
+                pass
+
+
 def worker():
     print("tr start")
 
@@ -522,6 +556,7 @@ def worker():
         for bot in bots:
 
             if bot['next_check'] <= datetime.now() and bot['not_archive']:
+                datecleck = datetime.now().time().second
                 total_balance = client.get_account()['balances']
                 db.botNextCheck(bot['_id'])
                 price = float(client.get_avg_price(symbol=bot['valute_par'])['price'])
@@ -564,6 +599,8 @@ def worker():
                                      order=order, spent=float(order["sell"]["count"]))
                 bot = db.getBot(bot["_id"])
                 checkOrers(bot,price)
+                sellUpBot(bot)
+                logging.info(f"[[[[[time loss: {datecleck - datetime.now().time().second}]]]]]")
 
         sleep(30)
 

@@ -5,11 +5,16 @@ import base
 from binance.client import Client
 import bin_func
 #{'_id': ObjectId('636631a0c254806799853cb9'), 'valute_par': 'TRXBTC', 'name': 'TRXBTC', 'sum_invest': 0.1, 'bye_lvl': 3e-06, 'sell_lvl': 3.05e-06, 'triger_lvl': 3.05e-06, 'valuecheck': 'min', 'check_time': 1, 'next_check': datetime.datetime(2022, 11, 7, 12, 43, 13, 531000), 'order': False, 'count_hev': 10000.0, 'last_bye': ObjectId('6368d2f995050ace7cce1208'), 'first_bye': ObjectId('6368d2f995050ace7cce1208'), 'spent': 0.03026493, 'order_id': 0, 'not_archive': True, 'triger': True, 'earned': 0}
-client = Client("b4V0IpllGxTYI0fUKVVRrALW8jV6hAqH0nkv37IHUyXjmu4sJbF6Mo7qHNkS3FnA","QNJEnRpzh8iuxwRQm8DLYHO7bB85TXGAut1xVBi95ynlHoVIGyKmzOotQLOwlCsM")
+#client = Client("b4V0IpllGxTYI0fUKVVRrALW8jV6hAqH0nkv37IHUyXjmu4sJbF6Mo7qHNkS3FnA","QNJEnRpzh8iuxwRQm8DLYHO7bB85TXGAut1xVBi95ynlHoVIGyKmzOotQLOwlCsM")
 #db = base.Base("localhost")
 
 #print(client.order_market_sell(symbol='TRXBTC',quantity=10000))
 
+datecheck = datetime.now().time().second
+print(datecheck)
+time.sleep(5)
+print(datetime.now().second)
+print(datetime.now().second-datecheck)
 
 #print(client.get_all_tickers())
 
@@ -42,18 +47,18 @@ client = Client("b4V0IpllGxTYI0fUKVVRrALW8jV6hAqH0nkv37IHUyXjmu4sJbF6Mo7qHNkS3Fn
 #print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
 #print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
 #print(bin_func.Sell(symb="TRXBTC",inv_sum=10000,client=client))
-sy = hlp.split_symbol('JASMYBTC')
-h = hlp.getminQty('JASMYBTC')
-cn = 499
-free= 500
-for b in client.get_account()['balances']:
-    if b["asset"] == sy['baseAsset']:
-        print(f"{b['asset']} {sy['baseAsset']}")
-
-        if float(free) < cn:
-            cn = float(format(float(free), f".{h['lot_size'] + 1}f"))
-
-print(cn)
+#sy = hlp.split_symbol('JASMYBTC')
+#h = hlp.getminQty('JASMYBTC')
+#cn = 499
+#free= 500
+#for b in client.get_account()['balances']:
+#    if b["asset"] == sy['baseAsset']:
+#        print(f"{b['asset']} {sy['baseAsset']}")
+#
+#        if float(free) < cn:
+#            cn = float(format(float(free), f".{h['lot_size'] + 1}f"))
+#
+#print(cn)
 
 #db.postOperationSell(bot_id='63692d8e6bf67ef9ac674c0d',sell_lvl=3.05e-06,valute_par='TRXBTC',order="orderID",count=0.03)
 
