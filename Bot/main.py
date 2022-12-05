@@ -535,6 +535,9 @@ def sellUpBot(bot):
                                 orderId=str(ord['id']))
                             bot = db.getBot(bot["_id"])
                             logging.info(f"___sell post cansle post 1 hour: {bot}")
+
+
+
                             if bot['count_hev'] > 0:
                                 total_balance = client.get_account()['balances']
                                 logging.info(f"spent_true: {bot['spent_true']}")
