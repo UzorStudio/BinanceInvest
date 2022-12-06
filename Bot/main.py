@@ -524,14 +524,14 @@ def sellUpBot(bot):
                 time_order = datetime.fromtimestamp(int(order['updateTime']) / 1000)
                 if time_order + timedelta(hours=1) < datetime.now() and order['status'] == 'NEW':
                     for ord in bot['orders_sell']:
-                        if max(ord["be_bye"]) < price:
+                        if max(ord["be_bye"]) <= price:
 
                             orderforsell = client.get_order(
                                 symbol=bot['valute_par'],
                                 orderId=str(ord['id']))
                             db.cancelOrderSell(bot_id=bot['_id'],orderId=ord['id'],origQty=orderforsell['origQty'])
                             client.cancel_order(
-                                symbol=order['symbol'],
+                                symbol=bot['valute_par'],
                                 orderId=str(ord['id']))
                             bot = db.getBot(bot["_id"])
                             logging.info(f"___sell post cansle post 1 hour: {bot}")
