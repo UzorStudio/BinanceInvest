@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta
 
 from binance.client import Client
@@ -15,14 +16,18 @@ except Exception as e:
 
 
 def cansle_order(order,client, trigger,price):
-    if "updateTime" in order:
-        time_order = datetime.fromtimestamp(int(order['updateTime']) / 1000)
-    else:
+    try:
+        if "updateTime" in order:
+            time_order = datetime.fromtimestamp(int(order['updateTime']) / 1000)
+        else:
+            print(order)
+            print("strenge error_______________")
+            return 0
+        print(f"cnsl_time:{time_order + timedelta(hours=1)} time_order:{time_order} time_now: {datetime.now()}")
         print(order)
-        print("strenge error_______________")
+    except:
+        logging.error("str err____________________ cansle_order")
         return 0
-    print(f"cnsl_time:{time_order + timedelta(hours=1)} time_order:{time_order} time_now: {datetime.now()}")
-    print(order)
 
     if trigger < price and 1-(trigger/price) > 0.02:
         if time_order + timedelta(hours=1) < datetime.now() and order['status'] == 'NEW':
