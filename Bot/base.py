@@ -214,7 +214,13 @@ class Base:
         symbol1= []
         for b in Bots.find({}):
             if b['valute_par'] not in symbol1:
-                symbol.append({"symbol":b['valute_par'],"count_bot":len(list(Bots.find({"valute_par":b['valute_par']})))})
+                price_massive_bye = []
+                price_massive_sell = []
+                for prices in Bots.find({"valute_par":b['valute_par']}):
+                    price_massive_bye.append(prices['bye_lvl'])
+                    price_massive_sell.append(prices['sell_lvl'])
+
+                symbol.append({"symbol":b['valute_par'],"max_bye":max(price_massive_bye),"max_sell":max(price_massive_sell),"min_bye":min(price_massive_bye),"min_sell":min(price_massive_sell),"count_bot":len(list(Bots.find({"valute_par":b['valute_par']})))})
                 symbol1.append(b['valute_par'])
             else:
                 pass
@@ -250,6 +256,20 @@ class Base:
 
         for i in inf['symbols']:
             Symbols.insert_one(i)
+
+    def UpdateTikers(self,client):
+        tick = client.get_all_tickers()
+        db = self.classter["BinanceInvest"]
+        Tickers = db["Tickers"]
+
+        for i in tick:
+            Tickers.insert_one(i)
+
+    def getAllTickers(self):
+        db = self.classter["BinanceInvest"]
+        Tickers = db["Tickers"]
+
+        return Tickers.find({})
 
     def getSymbInfo(self,symb):
         db = self.classter["BinanceInvest"]
@@ -309,6 +329,9 @@ class Base:
         Hist = db["Hist"]
         Bots = db["Bots"]
         bot = Bots.find_one({"_id": ObjectId(bot_id)})
+        ern = (float(count) - float(spent))/2
+
+        count = count - ern
 
         profit = (1-(spent/float(count)))*100
 
@@ -352,6 +375,7 @@ class Base:
                                                              'total_sum_invest':bot['base_total_sum_invest']+(bot['base_total_sum_invest']* (profit / 100))
                                                              }})
         Hist.insert_one(post)
+        return ern
 
     def postOperationOrgerBy(self, bye_lvl, valute_par, count, bot_id, orger_id,orger):
         db = self.classter["BinanceInvest"]

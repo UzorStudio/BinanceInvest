@@ -7,7 +7,6 @@ import helpFunctions as hlp
 from time import sleep
 
 from binance.client import Client
-from binance.enums import SIDE_BUY, TIME_IN_FORCE_GTC, ORDER_TYPE_LIMIT, SIDE_SELL
 from flask import Flask, render_template, request, redirect, session
 import base
 from datetime import datetime, timedelta
@@ -24,6 +23,7 @@ client = Client(apis[0].replace("\n", ""),
                 apis[1].replace("\n", ""),
                 )
 db.UpdateSymbolInfo(client)
+db.UpdateTikers(client)
 app = Flask(__name__)
 app.secret_key = "mimoza1122"
 
@@ -62,11 +62,6 @@ def index():
                 balances.append(i)
 
         for bot in bots:
-            razn = 0
-            razn_sell = 0
-            side = ''
-            side_sell = ''
-            price = float(client.get_avg_price(symbol=bot['valute_par'])['price'])
             if len(str(bot['bye_lvl']).split('e')) > 1:
                 bot['bye_lvl'] = format(float(bot['bye_lvl']), ".8f")
             if len(str(bot['sum_invest']).split('e')) > 1:
@@ -85,24 +80,9 @@ def index():
                 bot['triger_lvl'] = format(float(bot['triger_lvl']), ".8f")
             if len(str(bot['count_hev']).split('e')) > 1:
                 bot['count_hev'] = format(float(bot['count_hev']), ".8f")
-            if len(str(price).split('e')) > 1:
-                price = format(float(price), ".9f")
-            if bot['bye_lvl'] < price:
-                razn = 100 * (1 - float(bot['bye_lvl']) / float(price))
-                side = '▼'
-            if bot['bye_lvl'] > price:
-                razn = 100 * (1 - float(price) / float(bot['bye_lvl']))
-                side = '▲'
-            if bot['sell_lvl'] < price:
-                side_sell = '▼'
-                razn_sell = 100 * (1 - float(bot['sell_lvl']) / float(price))
-            if bot['sell_lvl'] > price:
-                side_sell = '▲'
-                razn_sell = 100 * (1 - float(price) / float(bot['sell_lvl']))
 
             b.append(
-                {"bot": bot, "price": price, "razn": toFixed(razn, 2), "side": side, "razn_sell": toFixed(razn_sell, 2),
-                 'side_sell': side_sell})
+                {"bot": bot})
 
         return render_template("index.html", bo=b, par=db.openSymbol(), balance=balances)
 
@@ -118,11 +98,6 @@ def index():
                 balances.append(i)
 
         for bot in bots:
-            razn = 0
-            side_sell = 0
-            side = 0
-            razn_sell = 0
-            price = float(client.get_avg_price(symbol=bot['valute_par'])['price'])
             if len(str(bot['bye_lvl']).split('e')) > 1:
                 bot['bye_lvl'] = format(float(bot['bye_lvl']), ".8f")
             if len(str(bot['sum_invest']).split('e')) > 1:
@@ -143,24 +118,9 @@ def index():
                 bot['count_hev'] = format(float(bot['count_hev']), ".8f")
             if len(str(bot['total_sum_invest']).split('e')) > 1:
                 bot['total_sum_invest'] = toFixed(bot['total_sum_invest'], 8)
-            if len(str(price).split('e')) > 1:
-                price = format(float(price), ".9f")
-            if float(bot['bye_lvl']) < float(price):
-                razn = 100 * (1 - float(bot['bye_lvl']) / float(price))
-                side = '▼'
-            if float(bot['bye_lvl']) > float(price):
-                razn = 100 * (1 - float(price) / float(bot['bye_lvl']))
-                side = '▲'
-            if float(bot['sell_lvl']) < float(price):
-                side_sell = '▼'
-                razn_sell = 100 * (1 - float(bot['sell_lvl']) / float(price))
-            if float(bot['sell_lvl']) > float(price):
-                side_sell = '▲'
-                razn_sell = 100 * (1 - float(price) / float(bot['sell_lvl']))
 
             b.append(
-                {"bot": bot, "price": price, "razn": toFixed(razn, 2), "side": side, "razn_sell": toFixed(razn_sell, 2),
-                 'side_sell': side_sell})
+                {"bot": bot})
 
         return render_template("index.html", bo=b, par=db.openSymbol(), balance=balances)
 
@@ -244,14 +204,11 @@ def create():
                 balances.append(i)
 
         tck = []
-        for t in client.get_all_tickers():
-            try:
-                if len(str(hlp.getMinInv(t['symbol'])).split('e')) > 1:
-                    tck.append({"minimum": format(float(hlp.getMinInv(t['symbol'])), ".8f"), "par": t})
-                else:
-                    tck.append({"minimum": hlp.getMinInv(t['symbol']), "par": t})
-            except:
-                print(t)
+        for t in db.getAllTickers():
+            if len(str(hlp.getMinInv(t['symbol'])).split('e')) > 1:
+                tck.append({"minimum": format(float(hlp.getMinInv(t['symbol'])), ".8f"), "par": t})
+            else:
+                tck.append({"minimum": hlp.getMinInv(t['symbol']), "par": t})
 
         return render_template("createbot.html", coin=tck, balance=balances)
 
@@ -499,12 +456,13 @@ def checkOrers(bot,price):
             orderId=str(order_bot['id']))
         if order["status"] == 'FILLED' and order["side"] == 'SELL':
             db.setTriger(bot["_id"], False)
-            db.postOperationSell(bot_id=bot['_id'],
+            ern = db.postOperationSell(bot_id=bot['_id'],
                                  order=order,
                                  valute_par=bot['valute_par'],
                                  count=order['cummulativeQuoteQty'],
                                  sell_lvl=order['price'],
                                  spent=order_bot['spents'])
+            client.transfer_spot_to_margin(asset=hlp.split_symbol(bot['valute_par'])['quoteAsset'], amount=str(ern))
             print(f"sell in paarsers {bot['_id']}")
             db.dropLastPrice(bot["_id"])
         if order["status"] == 'CANCELED' and order["side"] == 'SELL':
@@ -552,6 +510,39 @@ def sellUpBot(bot):
                 pass
 
 
+
+def belayOrder(bot,price):
+    for order_bot in db.getOrdersSellBot(bot['_id']):
+        order = client.get_order(
+            symbol=bot['valute_par'],
+            orderId=str(order_bot['id']))
+        if order["side"] == 'SELL':
+            if "updateTime" in order:
+                time_order = datetime.fromtimestamp(int(order['updateTime']) / 1000)
+                if time_order + timedelta(hours=24) < datetime.now() and order['status'] == 'NEW':
+                    for ord in bot['orders_sell']:
+                        if min(ord["be_bye"]) > price:
+                            if 1-(price/min(ord["be_bye"])) > 0.20:
+                                orderforsell = client.get_order(
+                                    symbol=bot['valute_par'],
+                                    orderId=str(ord['id']))
+                                db.cancelOrderSell(bot_id=bot['_id'], orderId=ord['id'],
+                                                   origQty=orderforsell['origQty'])
+                                client.cancel_order(
+                                    symbol=bot['valute_par'],
+                                    orderId=str(ord['id']))
+                                bot = db.getBot(bot["_id"])
+
+                                if bot['count_hev'] > 0:
+                                    total_balance = client.get_account()['balances']
+                                    logging.info(f"spent_true: {bot['spent_true']}")
+                                    order = bin_func.Sell(bot['valute_par'], inv_sum=bot['count_hev'],
+                                                          total_balance=total_balance, client=client, price=price)
+                                    if order and float(order['bye']['count']) > 0:
+                                        print(bot['spent_true'])
+                                        db.SellForBot(bot_id=bot['_id'], order=order, spent=bot['spent_true'])
+
+
 def worker():
     print("tr start")
 
@@ -592,18 +583,16 @@ def worker():
 
 
 
-                if price <= bot['triger_lvl'] and bot["order"] == False and bot[
+                if price <= bot['triger_lvl'] and bot[
                     "total_sum_invest"] >= hlp.getMinInv(bot['valute_par']) and price not in bot['last_price']:
                     order = bin_func.BuyOrder(symb=bot['valute_par'], client=client, inv_sum=bot['sum_invest'],
                                               balance=bot['total_sum_invest'], price=bot["bye_lvl"],total_balance=total_balance)
 
                     if order:
                         db.setLastPrice(bot["_id"], price)
-                        db.setTriger(bot["_id"],True)
                         db.ByeForBot(bot_id=bot['_id'],
                                      order=order, spent=float(order["sell"]["count"]))
                 bot = db.getBot(bot["_id"])
-                checkOrers(bot,price)
                 sellUpBot(bot)
                 logging.info(f"[[[[[time loss: {datecleck - datetime.now().time().second}]]]]]")
 

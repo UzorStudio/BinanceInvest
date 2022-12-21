@@ -11,7 +11,7 @@
                     <label>Доступные Валютные пары</label>
                     <select name="symbol" class="ui fluid dropdown livesearch">
                         {% for p in par %}
-                        <option value="{{p.symbol}}">{{p.symbol}} кол-во: {{p.count_bot}}</option>
+                        <option value="{{p.symbol}}">{{p.symbol}} кол-во: {{p.count_bot}} max: {{p.max_bye}} min:{{p.min_bye}}</option>
                         {% endfor %}
 
                     </select>
@@ -71,12 +71,10 @@
 
                 </div>
                 <div class="meta">
-                    <p>Валютная пара: <br>{{b.bot.valute_par}} <strong>{{b.price}}</strong></p>
+                    <p>Валютная пара: {{b.bot.valute_par}}
                     <p>Уровень покупки: {{b.bot.bye_lvl}}</p>
                     <p>Уровень продажи: {{b.bot.sell_lvl}}</p>
                     <p>Тригер цена: {{b.bot.triger_lvl}}</p>
-                    До уровня Покупки: {{b.razn}}% {{b.side}}<br>
-                    До уровня Продажи: {{b.razn_sell}}% {{b.side_sell}}
                     Сумма инвестиций: {{b.bot.sum_invest}}<br>
                     Свободно: {{b.bot.total_sum_invest}} из {{b.bot.base_total_sum_invest}}<br>
                 </div>
