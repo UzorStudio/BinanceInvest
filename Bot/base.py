@@ -331,7 +331,7 @@ class Base:
         bot = Bots.find_one({"_id": ObjectId(bot_id)})
         ern = (float(count) - float(spent))/2
 
-        count = count - ern
+        count = float(count) - ern
 
         profit = (1-(spent/float(count)))*100
 
