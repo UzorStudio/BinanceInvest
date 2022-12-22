@@ -594,6 +594,8 @@ def worker():
                                      order=order, spent=float(order["sell"]["count"]))
                 bot = db.getBot(bot["_id"])
                 sellUpBot(bot)
+                bot = db.getBot(bot["_id"])
+                belayOrder(bot=bot,price=price)
                 logging.info(f"[[[[[time loss: {datecleck - datetime.now().time().second}]]]]]")
 
         sleep(30)
