@@ -522,7 +522,7 @@ def belayOrder(bot,price):
                 if time_order + timedelta(hours=24) < datetime.now() and order['status'] == 'NEW':
                     for ord in bot['orders_sell']:
                         if min(ord["be_bye"]) > price:
-                            if 1-(price/min(ord["be_bye"])) > 0.20:
+                            if 1-(price/min(ord["be_bye"])) > 0.02:
                                 orderforsell = client.get_order(
                                     symbol=bot['valute_par'],
                                     orderId=str(ord['id']))
