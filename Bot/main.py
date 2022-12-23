@@ -598,7 +598,7 @@ def worker():
                 belayOrder(bot=bot,price=price)
                 logging.info(f"[[[[[time loss: {datecleck - datetime.now().time().second}]]]]]")
 
-        sleep(30)
+        sleep(60)
 
 
 def start():
