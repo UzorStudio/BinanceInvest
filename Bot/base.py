@@ -364,16 +364,18 @@ class Base:
                 ord.remove(o) # работает
                 print(f"1o: {o}, ord: {ord}")
                 Bots.update_one({"_id": ObjectId(bot_id)}, {"$set":{'orders_sell':ord}})
-
-        Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc": {"sum_invest": +(bot['sum_invest'] * (profit / 100)),
+        if ern > 0:
+            Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc": {"sum_invest": +(bot['sum_invest'] * (profit / 100)),
                                                              "earned": +float(toFixed((float(count) - float(spent)),8)),
                                                              "cikle_count": +1
                                                              }})
-        Bots.update_one({"_id": ObjectId(bot_id)}, {"$set": {"cikle_profit": profit,
+            Bots.update_one({"_id": ObjectId(bot_id)}, {"$set": {"cikle_profit": profit,
                                                              "spent": bot['spent']-float(spent),
                                                              "total_profit": total_percent,
                                                              'total_sum_invest':bot['base_total_sum_invest']+(bot['base_total_sum_invest']* (profit / 100))
                                                              }})
+        else:
+            Bots.update_one({"_id": ObjectId(bot_id)}, {"$set": {"spent": bot['spent'] - float(spent)}})
         Hist.insert_one(post)
         return ern
 

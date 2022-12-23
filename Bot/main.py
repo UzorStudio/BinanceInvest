@@ -462,7 +462,8 @@ def checkOrers(bot,price):
                                  count=order['cummulativeQuoteQty'],
                                  sell_lvl=order['price'],
                                  spent=order_bot['spents'])
-            client.transfer_spot_to_margin(asset=hlp.split_symbol(bot['valute_par'])['quoteAsset'], amount=toFixed(ern,8))
+            if ern > 0:
+                client.transfer_spot_to_margin(asset=hlp.split_symbol(bot['valute_par'])['quoteAsset'], amount=toFixed(ern,8))
             print(f"sell in paarsers {bot['_id']}")
             db.dropLastPrice(bot["_id"])
         if order["status"] == 'CANCELED' and order["side"] == 'SELL':
