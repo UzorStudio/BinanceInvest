@@ -437,6 +437,22 @@ class Base:
 
         Bots.update_one({"_id": ObjectId(bot_id)}, {"$inc":{"count_hev": +float(origQty),"spent_true": +spent}})
 
+
+    def MustBeSend(self,summ,quoteAsset):
+        db = self.classter["BinanceInvest"]
+        MustBeDo = db["MustBeDo"]
+
+        MustBeDo.insert_one({"type":"send","sum":summ,"quoteAsset":quoteAsset})
+
+    def getMustBeSend(self,quoteAsset):
+        db = self.classter["BinanceInvest"]
+        MustBeDo = db["MustBeDo"]
+        all = MustBeDo.find({"type":'send',"quoteAsset":quoteAsset})
+        erns = 0
+        for a in all:
+            erns+=float(a['sum'])
+
+        return erns
     def cancelOrderBye(self, order, bot_id):
         db = self.classter["BinanceInvest"]
         Bots = db["Bots"]

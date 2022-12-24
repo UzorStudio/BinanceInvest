@@ -464,8 +464,12 @@ def checkOrers(bot,price):
                                  spent=order_bot['spents'])
             if ern > 0:
                 try:
+                    mbs = db.getMustBeSend(hlp.split_symbol(bot['valute_par'])['quoteAsset'])
+                    if mbs != None and mbs > 0:
+                        ern+=mbs
                     client.transfer_spot_to_margin(asset=hlp.split_symbol(bot['valute_par'])['quoteAsset'], amount=toFixed(ern,8))
                 except:
+                    db.MustBeSend(summ=ern,quoteAsset=hlp.split_symbol(bot['valute_par'])['quoteAsset'])
                     logging.info("Balance is not enough")
             print(f"sell in paarsers {bot['_id']}")
             db.dropLastPrice(bot["_id"])
