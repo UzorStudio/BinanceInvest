@@ -463,7 +463,10 @@ def checkOrers(bot,price):
                                  sell_lvl=order['price'],
                                  spent=order_bot['spents'])
             if ern > 0:
-                client.transfer_spot_to_margin(asset=hlp.split_symbol(bot['valute_par'])['quoteAsset'], amount=toFixed(ern,8))
+                try:
+                    client.transfer_spot_to_margin(asset=hlp.split_symbol(bot['valute_par'])['quoteAsset'], amount=toFixed(ern,8))
+                except:
+                    logging.info("Balance is not enough")
             print(f"sell in paarsers {bot['_id']}")
             db.dropLastPrice(bot["_id"])
         if order["status"] == 'CANCELED' and order["side"] == 'SELL':
