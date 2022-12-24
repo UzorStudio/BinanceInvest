@@ -483,12 +483,10 @@ def sellUpBot(bot):
                 time_order = datetime.fromtimestamp(int(order['updateTime']) / 1000)
                 if time_order + timedelta(hours=15) < datetime.now() and order['status'] == 'NEW':
                     for ord in bot['orders_sell']:
-                        if len(ord["be_bye"])>1:
+                        if len(ord["be_bye"])>=1:
                             ords = max(ord["be_bye"])
                         else:
-                            logging.error(bot['_id'])
-                            logging.error(bot)
-                            ords = ord["be_bye"][0]
+                            ords = price-(price*0.01)
 
                         if ords < price:
 
