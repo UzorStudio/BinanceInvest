@@ -487,6 +487,7 @@ def sellUpBot(bot):
                             ords = max(ord["be_bye"])
                         else:
                             ords = ord["be_bye"][0]
+                            print(bot['_id'])
                         if ords < price:
 
                             orderforsell = client.get_order(
