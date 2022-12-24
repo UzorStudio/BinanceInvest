@@ -487,6 +487,7 @@ def sellUpBot(bot):
                             ords = max(ord["be_bye"])
                         else:
                             logging.error(bot['_id'])
+                            logging.error(bot)
                             ords = ord["be_bye"][0]
 
                         if ords < price:
