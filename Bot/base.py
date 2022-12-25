@@ -453,6 +453,11 @@ class Base:
             erns+=float(a['sum'])
 
         return erns
+
+    def dellMustBseSend(self):
+        db = self.classter["BinanceInvest"]
+        MustBeDo = db["MustBeDo"]
+        MustBeDo.delete_many({})
     def cancelOrderBye(self, order, bot_id):
         db = self.classter["BinanceInvest"]
         Bots = db["Bots"]

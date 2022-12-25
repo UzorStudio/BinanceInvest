@@ -467,6 +467,7 @@ def checkOrers(bot,price):
                     mbs = db.getMustBeSend(hlp.split_symbol(bot['valute_par'])['quoteAsset'])
                     if mbs != None and mbs > 0:
                         ern+=mbs
+                        db.dellMustBseSend()
                     client.transfer_spot_to_margin(asset=hlp.split_symbol(bot['valute_par'])['quoteAsset'], amount=toFixed(ern,8))
                 except:
                     db.MustBeSend(summ=ern,quoteAsset=hlp.split_symbol(bot['valute_par'])['quoteAsset'])
