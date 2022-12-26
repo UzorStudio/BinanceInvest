@@ -618,8 +618,7 @@ def start():
             tr.start()
         else:
             print(f"tr err thr count:{len(threading.enumerate())}")
-    except ReadTimeout as e:
-        print(f"ReadTimeout {e.args}")
+    except:
         sleep(15)
         start()
 
