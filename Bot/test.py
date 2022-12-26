@@ -9,12 +9,19 @@ import bin_func
 #db = base.Base("localhost")
 
 #print(client.order_market_sell(symbol='TRXBTC',quantity=10000))
+count = 0.001123
+spent = 0.001
+def toFixed(numObj, digits=0):
+    return f"{numObj:.{digits}f}"
+ern = (count - spent)/2
+count = count - ern
 
-datecheck = datetime.now().time().second
-print(datecheck)
-time.sleep(5)
-print(datetime.now().second)
-print(datetime.now().second-datecheck)
+print(f'{list(toFixed(ern,8).split(".")[1])} {count}')
+
+
+
+def transfer_profit(client,asset,amount):
+    transaction = client.transfer_spot_to_margin(asset='BNB', amount='0.001')
 
 #print(client.get_all_tickers())
 
