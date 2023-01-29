@@ -38,14 +38,6 @@ def cansle_order(order,client, trigger,price):
             re = {"order":order,"res":result,"price":result['price'],"return":float(result['origQty'])*float(result['price']),"status": "NEW",'executedQty':result['executedQty']}
             print(f"cansle order:{re}")
             return re
-        elif time_order + timedelta(hours=1) < datetime.now() and order['status'] == 'PARTIALLY_FILLED':
-            result = client.cancel_order(
-                symbol=order['symbol'],
-                orderId=str(order['orderId']))
-            re = {"order": order, "res": result, "price": result['price'], "return": float(result['origQty'])*float(result['price']),
-                  "status": "PARTIALLY_FILLED", 'executedQty': result['executedQty']}
-            print(f"cansle order:{re}")
-            return re
         else:
             return 0
     else:

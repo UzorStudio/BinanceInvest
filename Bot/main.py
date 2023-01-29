@@ -486,12 +486,9 @@ def sellUpBot(bot):
         if order["side"] == 'SELL':
             if "updateTime" in order:
                 time_order = datetime.fromtimestamp(int(order['updateTime']) / 1000)
-                if time_order + timedelta(hours=15) < datetime.now() and order['status'] == 'NEW':
+                if time_order + timedelta(minutes=15) < datetime.now() and order['status'] == 'NEW':
                     for ord in bot['orders_sell']:
-                        if len(ord["be_bye"])>=1:
-                            ords = max(ord["be_bye"])
-                        else:
-                            ords = price-(price*0.01)
+                        ords = max(ord["be_bye"])
                         if ords < price:
 
                             orderforsell = client.get_order(
@@ -543,14 +540,14 @@ def belayOrder(bot,price):
                                     orderId=str(ord['id']))
                                 bot = db.getBot(bot["_id"])
 
-                                if bot['count_hev'] > 0:
+                                if orderforsell['origQty'] > 0:
                                     total_balance = client.get_account()['balances']
                                     logging.info(f"spent_true: {bot['spent_true']}")
-                                    order = bin_func.Sell(bot['valute_par'], inv_sum=bot['count_hev'],
+                                    order1 = bin_func.Sell(bot['valute_par'], inv_sum=orderforsell['origQty'],
                                                           total_balance=total_balance, client=client, price=price)
-                                    if order and float(order['bye']['count']) > 0:
+                                    if order1 and float(order1['bye']['count']) > 0:
                                         print(bot['spent_true'])
-                                        db.SellForBot(bot_id=bot['_id'], order=order, spent=bot['spent_true'])
+                                        db.SellForBot(bot_id=bot['_id'], order=order1, spent=bot['spent_true'])
 
 
 def worker():
@@ -604,8 +601,8 @@ def worker():
                                      order=order, spent=float(order["sell"]["count"]))
                 bot = db.getBot(bot["_id"])
                 sellUpBot(bot)
-                bot = db.getBot(bot["_id"])
-                belayOrder(bot=bot,price=price)
+                #bot = db.getBot(bot["_id"])
+                #belayOrder(bot=bot,price=price)
                 logging.info(f"[[[[[time loss: {datecleck - datetime.now().time().second}]]]]]")
 
         sleep(60)
